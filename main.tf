@@ -15,6 +15,7 @@ resource "random_id" "worker" {
 }
 
 resource "exoscale_ssh_keypair" "admin" {
+  count      = var.existing_keypair == "" ? 1 : 0
   name       = var.cluster_id
   public_key = var.ssh_key
 }
@@ -78,7 +79,7 @@ resource "exoscale_compute" "bootstrap" {
   count        = var.bootstrap_count
   display_name = "bootstrap.${var.cluster_id}.${var.base_domain}"
   hostname     = "bootstrap"
-  key_pair     = exoscale_ssh_keypair.admin.name
+  key_pair     = try(exoscale_ssh_keypair.admin[0].name, var.existing_keypair)
   zone         = var.region
   template_id  = data.exoscale_compute_template.rhcos.id
   size         = "Extra-large"

@@ -8,7 +8,7 @@ resource "exoscale_compute" "master" {
   count              = local.master_count
   display_name       = "${random_id.master[count.index].hex}.${var.cluster_id}.${var.base_domain}"
   hostname           = random_id.master[count.index].hex
-  key_pair           = exoscale_ssh_keypair.admin.name
+  key_pair           = try(exoscale_ssh_keypair.admin[0].name, var.existing_keypair)
   zone               = var.region
   affinity_group_ids = [exoscale_affinity.master.id]
   template_id        = data.exoscale_compute_template.rhcos.id

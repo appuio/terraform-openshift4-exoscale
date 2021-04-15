@@ -18,6 +18,11 @@ variable "ssh_key" {
   type    = string
 }
 
+variable "existing_keypair" {
+  type    = string
+  default = ""
+}
+
 variable "privnet_cidr" {
   default = "172.18.200.0/24"
 }
