@@ -11,7 +11,7 @@ variable "rhcos_template" {
 }
 
 variable "base_domain" {
-  default = "ocp4-poc.appuio-beta.ch"
+  default = "appuio-beta.ch"
 }
 
 variable "ssh_key" {
