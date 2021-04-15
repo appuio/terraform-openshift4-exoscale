@@ -1,24 +1,12 @@
 {
     "ignition": {
-        "version": "2.2.0",
+        "version": "3.1.0",
         "config": {
-            "append": [
+            "merge": [
                 {
                     "source": "https://sos-${region}.exo.io/${cluster_id}-bootstrap-ignition/${role}.ign"
                 }
             ]
         }
-    },
-    "storage": {
-        "files": [
-            {
-                "filesystem": "root",
-                "path": "/etc/hostname",
-                "mode": 420,
-                "contents": {
-                    "source": "data:,${hostname}"
-                }
-            }
-        ]
     }
 }
