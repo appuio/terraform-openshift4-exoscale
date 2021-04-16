@@ -3,6 +3,7 @@ variable "cluster_id" {
 }
 
 variable "region" {
+  type    = string
   default = "ch-dk-2"
 }
 
@@ -15,7 +16,7 @@ variable "base_domain" {
 }
 
 variable "ssh_key" {
-  type    = string
+  type = string
 }
 
 variable "existing_keypair" {
@@ -35,4 +36,9 @@ variable "bootstrap_count" {
 variable "worker_count" {
   type    = number
   default = 3
+}
+
+variable "worker_size" {
+  type    = string
+  default = "Extra-large"
 }

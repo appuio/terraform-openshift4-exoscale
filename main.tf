@@ -1,23 +1,5 @@
 locals {
-  master_count      = 3
-  ignition_template = "./templates/ignition.tmpl"
-}
-
-resource "random_id" "master" {
-  count       = local.master_count
-  prefix      = "master-"
-  byte_length = 1
-}
-resource "random_id" "worker" {
-  count       = var.worker_count
-  prefix      = "node-"
-  byte_length = 2
-}
-
-resource "exoscale_ssh_keypair" "admin" {
-  count      = var.existing_keypair == "" ? 1 : 0
-  name       = var.cluster_id
-  public_key = var.ssh_key
+  master_count      = 1
 }
 
 resource "exoscale_domain" "cluster" {
@@ -75,31 +57,6 @@ resource "exoscale_domain_record" "ingress" {
 }
 
 # Bootstrap
-resource "exoscale_compute" "bootstrap" {
-  count        = var.bootstrap_count
-  display_name = "bootstrap.${var.cluster_id}.${var.base_domain}"
-  hostname     = "bootstrap"
-  key_pair     = try(exoscale_ssh_keypair.admin[0].name, var.existing_keypair)
-  zone         = var.region
-  template_id  = data.exoscale_compute_template.rhcos.id
-  size         = "Extra-large"
-  disk_size    = 128
-  security_groups = [
-    exoscale_security_group.all_machines.name,
-    exoscale_security_group.control_plane.name,
-  ]
-  user_data = base64encode(templatefile(local.ignition_template, {
-    role       = "bootstrap"
-    cluster_id = var.cluster_id
-    region     = var.region
-    hostname   = "bootstrap"
-  }))
-  depends_on = [
-    exoscale_security_group_rules.all_machines,
-    exoscale_security_group_rules.control_plane,
-    exoscale_security_group_rules.worker,
-  ]
-}
 resource "exoscale_domain_record" "api_int_bootstrap" {
   count       = var.bootstrap_count
   domain      = exoscale_domain.cluster.id
