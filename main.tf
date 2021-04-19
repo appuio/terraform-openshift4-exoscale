@@ -1,6 +1,7 @@
 locals {
   master_count = 3
-  api_int_ip   = "172.18.200.100"
+  privnet_api  = cidrhost(var.privnet_cidr, 100)
+  privnet_gw   = cidrhost(var.privnet_cidr, 1)
 }
 
 resource "exoscale_domain" "cluster" {
@@ -24,9 +25,9 @@ resource "exoscale_network" "clusternet" {
   zone         = var.region
   name         = "${var.cluster_id}_clusternet"
   display_text = "${var.cluster_id} private network"
-  start_ip     = "172.18.200.101"
-  end_ip       = "172.18.200.253"
-  netmask      = "255.255.255.0"
+  start_ip     = cidrhost(var.privnet_cidr, 101)
+  end_ip       = cidrhost(var.privnet_cidr, 253)
+  netmask      = cidrnetmask(var.privnet_cidr)
 }
 
 resource "exoscale_domain_record" "api_int" {
@@ -34,5 +35,5 @@ resource "exoscale_domain_record" "api_int" {
   name        = "api-int"
   ttl         = 60
   record_type = "A"
-  content     = local.api_int_ip
+  content     = local.privnet_api
 }

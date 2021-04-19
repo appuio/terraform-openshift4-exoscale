@@ -41,9 +41,14 @@ variable "base_domain" {
   type = string
 }
 
-variable "cluster_network_id" {
+variable "privnet_id" {
   type    = string
   default = "" # don't attach to private network
+}
+
+variable "privnet_gw" {
+  type    = string
+  default = ""
 }
 
 variable "api_int" {
@@ -54,7 +59,7 @@ variable "ignition_ca" {
   type = string
 }
 
-variable "cluster_network_dhcp_reservation" {
+variable "privnet_dhcp_reservation" {
   type    = string
   default = ""
 }

@@ -75,7 +75,7 @@ resource "exoscale_compute" "nodes" {
             "path" : "/etc/sysconfig/network-scripts/route-ens6",
             "mode" : 420,
             "contents" : {
-              "source" : "data:text/plain;charset=utf-8;base64,${base64encode("default via 172.18.200.1")}"
+              "source" : "data:text/plain;charset=utf-8;base64,${base64encode("default via ${var.privnet_gw}")}"
             }
           }
         ]
@@ -85,8 +85,8 @@ resource "exoscale_compute" "nodes" {
 }
 
 resource "exoscale_nic" "nodes" {
-  count      = var.cluster_network_id != "" ? var.node_count : 0
+  count      = var.privnet_id != "" ? var.node_count : 0
   compute_id = exoscale_compute.nodes[count.index].id
-  network_id = var.cluster_network_id
-  ip_address = var.cluster_network_dhcp_reservation != "" ? var.cluster_network_dhcp_reservation : null
+  network_id = var.privnet_id
+  ip_address = var.privnet_dhcp_reservation != "" ? var.privnet_dhcp_reservation : null
 }

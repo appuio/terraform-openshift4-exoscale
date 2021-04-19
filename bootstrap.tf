@@ -1,5 +1,5 @@
 locals {
-  bootstrap_ip = "172.18.200.10"
+  bootstrap_ip = cidrhost(var.privnet_cidr, 10)
 }
 
 module "bootstrap" {
@@ -14,9 +14,9 @@ module "bootstrap" {
   instance_size   = "Extra-large"
   disk_size       = 128
 
-  cluster_network_id = exoscale_network.clusternet.id
-
-  cluster_network_dhcp_reservation = local.bootstrap_ip
+  privnet_id               = exoscale_network.clusternet.id
+  privnet_dhcp_reservation = local.bootstrap_ip
+  privnet_gw               = local.privnet_gw
 
   api_int     = exoscale_domain_record.api_int.hostname
   ignition_ca = var.ignition_ca
