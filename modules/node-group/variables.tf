@@ -40,3 +40,21 @@ variable "security_group_ids" {
 variable "base_domain" {
   type = string
 }
+
+variable "cluster_network_id" {
+  type    = string
+  default = "" # don't attach to private network
+}
+
+variable "api_int" {
+  type = string
+}
+
+variable "ignition_ca" {
+  type = string
+}
+
+variable "cluster_network_dhcp_reservation" {
+  type    = string
+  default = ""
+}

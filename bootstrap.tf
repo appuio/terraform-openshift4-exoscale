@@ -1,33 +1,37 @@
-resource "exoscale_compute" "bootstrap" {
-  count        = var.bootstrap_count
-  display_name = "bootstrap.${var.cluster_id}.${var.base_domain}"
-  hostname     = "bootstrap"
-  zone         = var.region
-  template_id  = data.exoscale_compute_template.rhcos.id
-  size         = "Extra-large"
-  disk_size    = 128
-  security_groups = [
-    exoscale_security_group.all_machines.name,
-    exoscale_security_group.control_plane.name,
+locals {
+  bootstrap_ip = "172.18.200.10"
+}
+
+module "bootstrap" {
+  source = "./modules/node-group/"
+
+  cluster_id      = var.cluster_id
+  node_group_name = "bootstrap"
+  node_count      = var.bootstrap_count
+  region          = var.region
+  template_id     = data.exoscale_compute_template.rhcos.id
+  base_domain     = var.base_domain
+  instance_size   = "Extra-large"
+  disk_size       = 128
+
+  cluster_network_id = exoscale_network.clusternet.id
+
+  cluster_network_dhcp_reservation = local.bootstrap_ip
+
+  api_int     = exoscale_domain_record.api_int.hostname
+  ignition_ca = var.ignition_ca
+
+  security_group_ids = [
+    exoscale_security_group.all_machines.id,
+    exoscale_security_group.control_plane.id,
   ]
-  user_data = base64encode(<<-EOF
-  {
-      "ignition": {
-          "version": "3.1.0",
-          "config": {
-              "merge": [
-                  {
-                      "source": "https://sos-${var.region}.exo.io/${var.cluster_id}-bootstrap-ignition/bootstrap.ign"
-                  }
-              ]
-          }
-      }
-  }
-  EOF
-  )
-  depends_on = [
-    exoscale_security_group_rules.all_machines,
-    exoscale_security_group_rules.control_plane,
-    exoscale_security_group_rules.worker,
-  ]
+}
+
+resource "exoscale_domain_record" "bootstrap_api_member" {
+  count       = var.bootstrap_count
+  domain      = exoscale_domain.cluster.id
+  name        = "api-member"
+  ttl         = 60
+  record_type = "A"
+  content     = module.bootstrap.ip_address[0]
 }

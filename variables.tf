@@ -42,3 +42,7 @@ variable "worker_size" {
   type    = string
   default = "Extra-large"
 }
+
+variable "ignition_ca" {
+  type = string
+}
