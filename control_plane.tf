@@ -28,3 +28,22 @@ resource "exoscale_domain_record" "master_api_member" {
   record_type = "A"
   content     = module.master.ip_address[count.index]
 }
+
+resource "exoscale_domain_record" "etcd" {
+  count       = local.master_count
+  domain      = exoscale_domain.cluster.id
+  name        = "etcd-${count.index}"
+  ttl         = 60
+  record_type = "A"
+  content     = module.master.ip_address[count.index]
+}
+
+resource "exoscale_domain_record" "etcd_srv" {
+  count       = local.master_count
+  domain      = exoscale_domain.cluster.id
+  name        = "_etcd-server-ssl._tcp"
+  ttl         = 60
+  record_type = "SRV"
+  prio        = 0
+  content     = "10 2380 ${exoscale_domain_record.etcd[count.index].hostname}"
+}
