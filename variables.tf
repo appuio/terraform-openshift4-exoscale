@@ -25,7 +25,13 @@ variable "existing_keypair" {
 }
 
 variable "privnet_cidr" {
+  type    = string
   default = "172.18.200.0/24"
+}
+
+variable "use_privnet" {
+  type    = bool
+  default = true
 }
 
 variable "bootstrap_count" {

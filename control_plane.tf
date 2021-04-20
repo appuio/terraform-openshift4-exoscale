@@ -9,7 +9,7 @@ module "master" {
   base_domain     = var.base_domain
   instance_size   = "Extra-large"
 
-  privnet_id = exoscale_network.clusternet.id
+  privnet_id = var.use_privnet ? exoscale_network.clusternet[0].id : ""
   privnet_gw = local.privnet_gw
 
   api_int     = exoscale_domain_record.api_int.hostname

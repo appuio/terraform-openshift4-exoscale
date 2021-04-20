@@ -22,6 +22,7 @@ data "exoscale_compute_template" "rhcos" {
 }
 
 resource "exoscale_network" "clusternet" {
+  count        = var.use_privnet ? 1 : 0
   zone         = var.region
   name         = "${var.cluster_id}_clusternet"
   display_text = "${var.cluster_id} private network"
@@ -34,6 +35,7 @@ resource "exoscale_domain_record" "api_int" {
   domain      = exoscale_domain.cluster.id
   name        = "api-int"
   ttl         = 60
-  record_type = "A"
-  content     = local.privnet_api
+  # TODO: fix when LBs are terraformed
+  record_type = var.use_privnet ? "A" : "CNAME"
+  content     = var.use_privnet ? local.privnet_api : "api.${var.cluster_id}.${var.base_domain}"
 }

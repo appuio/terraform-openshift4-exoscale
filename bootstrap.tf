@@ -14,7 +14,7 @@ module "bootstrap" {
   instance_size   = "Extra-large"
   disk_size       = 128
 
-  privnet_id               = exoscale_network.clusternet.id
+  privnet_id               = var.use_privnet ? exoscale_network.clusternet[0].id : ""
   privnet_dhcp_reservation = local.bootstrap_ip
   privnet_gw               = local.privnet_gw
 

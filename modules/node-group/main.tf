@@ -4,10 +4,61 @@ locals {
     "master" : "https://${var.api_int}:22623/config/master"
     "worker" : "https://${var.api_int}:22623/config/worker"
   }
+
+  user_data = base64encode(jsonencode({
+    "ignition" : {
+      "version" : "3.1.0",
+      "config" : {
+        "merge" : [
+          {
+            "source" : local.ignition_source[var.node_group_name]
+          }
+        ]
+      },
+      "security" : {
+        "tls" : {
+          "certificateAuthorities" : [{
+            "source" : "data:text/plain;charset=utf-8;base64,${base64encode(var.ignition_ca)}"
+          }]
+        }
+      }
+    },
+    "storage" : var.privnet_id != "" ? local.privnet_config : {}
+  }))
+
+  # TODO: can we do something smarter than this?
   dns_servers = <<-EOF
   DNS1=159.100.247.115
   DNS2=159.100.253.158
   EOF
+  privnet_config = {
+    "files" : [
+      {
+        "filesystem" : "root",
+        "path" : "/etc/sysconfig/network-scripts/ifcfg-ens3",
+        "mode" : 420,
+        "contents" : {
+          "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile("${path.module}/templates/ifcfg.tmpl", { device = "ens3", enabled = "no", custom_dns = "" }))}"
+        }
+      },
+      {
+        "filesystem" : "root",
+        "path" : "/etc/sysconfig/network-scripts/ifcfg-ens6",
+        "mode" : 420,
+        "contents" : {
+          "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile("${path.module}/templates/ifcfg.tmpl", { device = "ens6", enabled = "yes", custom_dns = local.dns_servers }))}"
+        }
+      },
+      {
+        "filesystem" : "root",
+        "path" : "/etc/sysconfig/network-scripts/route-ens6",
+        "mode" : 420,
+        "contents" : {
+          "source" : "data:text/plain;charset=utf-8;base64,${base64encode("default via ${var.privnet_gw}")}"
+        }
+      }
+    ]
+  }
 }
 
 resource "random_id" "node_id" {
@@ -33,55 +84,7 @@ resource "exoscale_compute" "nodes" {
   size               = var.instance_size
   disk_size          = var.disk_size
   security_group_ids = var.security_group_ids
-  user_data = base64encode(jsonencode(
-    {
-      "ignition" : {
-        "version" : "3.1.0",
-        "config" : {
-          "merge" : [
-            {
-              "source" : local.ignition_source[var.node_group_name]
-            }
-          ]
-        },
-        "security" : {
-          "tls" : {
-            "certificateAuthorities" : [{
-              "source" : "data:text/plain;charset=utf-8;base64,${base64encode(var.ignition_ca)}"
-            }]
-          }
-        }
-      },
-      "storage" : {
-        "files" : [
-          {
-            "filesystem" : "root",
-            "path" : "/etc/sysconfig/network-scripts/ifcfg-ens3",
-            "mode" : 420,
-            "contents" : {
-              "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile("./templates/ifcfg.tmpl", { device = "ens3", enabled = "no", custom_dns = "" }))}"
-            }
-          },
-          {
-            "filesystem" : "root",
-            "path" : "/etc/sysconfig/network-scripts/ifcfg-ens6",
-            "mode" : 420,
-            "contents" : {
-              "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile("./templates/ifcfg.tmpl", { device = "ens6", enabled = "yes", custom_dns = local.dns_servers }))}"
-            }
-          },
-          {
-            "filesystem" : "root",
-            "path" : "/etc/sysconfig/network-scripts/route-ens6",
-            "mode" : 420,
-            "contents" : {
-              "source" : "data:text/plain;charset=utf-8;base64,${base64encode("default via ${var.privnet_gw}")}"
-            }
-          }
-        ]
-      }
-    }
-  ))
+  user_data          = local.user_data
 }
 
 resource "exoscale_nic" "nodes" {
