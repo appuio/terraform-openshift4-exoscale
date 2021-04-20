@@ -38,6 +38,11 @@ variable "worker_count" {
   default = 3
 }
 
+variable "master_count" {
+  type    = number
+  default = 3
+}
+
 variable "worker_size" {
   type    = string
   default = "Extra-large"

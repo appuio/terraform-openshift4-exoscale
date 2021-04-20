@@ -3,7 +3,7 @@ module "master" {
 
   cluster_id      = var.cluster_id
   node_group_name = "master"
-  node_count      = local.master_count
+  node_count      = var.master_count
   region          = var.region
   template_id     = data.exoscale_compute_template.rhcos.id
   base_domain     = var.base_domain
@@ -22,7 +22,7 @@ module "master" {
 }
 
 resource "exoscale_domain_record" "master_api_member" {
-  count       = local.master_count
+  count       = var.master_count
   domain      = exoscale_domain.cluster.id
   name        = "api-member"
   ttl         = 60
@@ -31,7 +31,7 @@ resource "exoscale_domain_record" "master_api_member" {
 }
 
 resource "exoscale_domain_record" "etcd" {
-  count       = local.master_count
+  count       = var.master_count
   domain      = exoscale_domain.cluster.id
   name        = "etcd-${count.index}"
   ttl         = 60
@@ -40,7 +40,7 @@ resource "exoscale_domain_record" "etcd" {
 }
 
 resource "exoscale_domain_record" "etcd_srv" {
-  count       = local.master_count
+  count       = var.master_count
   domain      = exoscale_domain.cluster.id
   name        = "_etcd-server-ssl._tcp"
   ttl         = 60
