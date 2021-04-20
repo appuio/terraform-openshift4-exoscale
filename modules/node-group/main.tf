@@ -23,7 +23,7 @@ locals {
         }
       }
     },
-    "storage" : var.privnet_id != "" ? local.privnet_config : {}
+    "storage" : var.use_privnet ? local.privnet_config : {}
   }))
 
   # TODO: can we do something smarter than this?
@@ -88,7 +88,7 @@ resource "exoscale_compute" "nodes" {
 }
 
 resource "exoscale_nic" "nodes" {
-  count      = var.privnet_id != "" ? var.node_count : 0
+  count      = var.use_privnet ? var.node_count : 0
   compute_id = exoscale_compute.nodes[count.index].id
   network_id = var.privnet_id
   ip_address = var.privnet_dhcp_reservation != "" ? var.privnet_dhcp_reservation : null

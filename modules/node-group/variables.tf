@@ -41,9 +41,14 @@ variable "base_domain" {
   type = string
 }
 
+variable "use_privnet" {
+  type    = bool
+  default = false
+}
+
 variable "privnet_id" {
   type    = string
-  default = "" # don't attach to private network
+  default = ""
 }
 
 variable "privnet_gw" {
