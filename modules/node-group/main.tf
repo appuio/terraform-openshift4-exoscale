@@ -1,6 +1,6 @@
 locals {
   ignition_source = {
-    "bootstrap" : "https://sos-${var.region}.exo.io/${var.cluster_id}-bootstrap-ignition/bootstrap.ign"
+    "bootstrap" : "${var.bootstrap_bucket}/bootstrap.ign"
     "master" : "https://${var.api_int}:22623/config/master"
     "worker" : "https://${var.api_int}:22623/config/worker"
   }

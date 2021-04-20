@@ -120,7 +120,7 @@ resource "exoscale_compute" "lb" {
       }
     ],
     "runcmd" : [
-      "curl -Lo /tmp/ursula.deb https://sos-${var.region}.exo.io/${var.cluster_id}-bootstrap-ignition/ursula.deb",
+      "curl -Lo /tmp/ursula.deb ${var.bootstrap_bucket}/ursula.deb",
       "dpkg -i /tmp/ursula.deb",
       "systemctl restart keepalived",
       "shutdown --reboot +1 'Reboot for system setup'"

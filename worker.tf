@@ -20,6 +20,8 @@ module "worker" {
     exoscale_security_group.all_machines.id,
     exoscale_security_group.worker.id,
   ]
+
+  bootstrap_bucket = var.bootstrap_bucket
 }
 
 resource "exoscale_domain_record" "router_member" {

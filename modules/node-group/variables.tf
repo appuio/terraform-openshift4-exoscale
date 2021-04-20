@@ -64,6 +64,10 @@ variable "ignition_ca" {
   type = string
 }
 
+variable "bootstrap_bucket" {
+  type = string
+}
+
 variable "privnet_dhcp_reservation" {
   type    = string
   default = ""

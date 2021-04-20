@@ -26,6 +26,8 @@ module "bootstrap" {
     exoscale_security_group.all_machines.id,
     exoscale_security_group.control_plane.id,
   ]
+
+  bootstrap_bucket = var.bootstrap_bucket
 }
 
 resource "exoscale_domain_record" "bootstrap_api_member" {
