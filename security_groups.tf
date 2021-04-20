@@ -7,6 +7,12 @@ resource "exoscale_security_group_rules" "all_machines" {
   security_group = exoscale_security_group.all_machines.name
 
   ingress {
+    description              = "Ingress Router metrics"
+    protocol                 = "TCP"
+    ports                    = ["1936"]
+    user_security_group_list = [exoscale_security_group.all_machines.name]
+  }
+  ingress {
     description              = "Host level services, including the node exporter on ports 9100-9101 and the Cluster Version Operator on port 9099"
     protocol                 = "TCP"
     ports                    = ["9000-9999"]
@@ -24,12 +30,20 @@ resource "exoscale_security_group_rules" "all_machines" {
     ports                    = ["10256"]
     user_security_group_list = [exoscale_security_group.all_machines.name]
   }
+
   ingress {
     description              = "VXLAN and GENEVE"
     protocol                 = "UDP"
     ports                    = ["4789", "6081"]
     user_security_group_list = [exoscale_security_group.all_machines.name]
   }
+  ingress {
+    description              = "Host level services, including the node exporter on ports 9100-9101"
+    protocol                 = "UDP"
+    ports                    = ["9000-9999"]
+    user_security_group_list = [exoscale_security_group.all_machines.name]
+  }
+
   ingress {
     description              = "Kubernetes NodePort TCP"
     protocol                 = "TCP"
@@ -127,12 +141,12 @@ resource "exoscale_security_group_rules" "worker" {
     description              = "Ingress controller TCP"
     protocol                 = "TCP"
     ports                    = ["80", "443"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
+    user_security_group_list = [exoscale_security_group.load_balancers.name]
   }
   ingress {
     description              = "Ingress controller UDP"
     protocol                 = "UDP"
     ports                    = ["80", "443"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
+    user_security_group_list = [exoscale_security_group.load_balancers.name]
   }
 }
