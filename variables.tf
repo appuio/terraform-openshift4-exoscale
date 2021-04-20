@@ -49,11 +49,23 @@ variable "master_count" {
   default = 3
 }
 
+variable "lb_count" {
+  type    = number
+  default = 2
+}
+
 variable "worker_size" {
   type    = string
   default = "Extra-large"
 }
 
 variable "ignition_ca" {
+  type = string
+}
+
+variable "lb_exoscale_api_key" {
+  type = string
+}
+variable "lb_exoscale_api_secret" {
   type = string
 }

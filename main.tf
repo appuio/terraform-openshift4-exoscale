@@ -1,11 +1,12 @@
 locals {
-  master_count = 3
-  privnet_api  = cidrhost(var.privnet_cidr, 100)
-  privnet_gw   = cidrhost(var.privnet_cidr, 1)
+  master_count   = 3
+  privnet_api    = cidrhost(var.privnet_cidr, 100)
+  privnet_gw     = cidrhost(var.privnet_cidr, 1)
+  cluster_domain = "${var.cluster_id}.${var.base_domain}"
 }
 
 resource "exoscale_domain" "cluster" {
-  name = "${var.cluster_id}.${var.base_domain}"
+  name = local.cluster_domain
 }
 
 data "exoscale_domain_record" "exo_nameservers" {
@@ -35,7 +36,6 @@ resource "exoscale_domain_record" "api_int" {
   domain      = exoscale_domain.cluster.id
   name        = "api-int"
   ttl         = 60
-  # TODO: fix when LBs are terraformed
   record_type = var.use_privnet ? "A" : "CNAME"
   content     = var.use_privnet ? local.privnet_api : "api.${var.cluster_id}.${var.base_domain}"
 }
