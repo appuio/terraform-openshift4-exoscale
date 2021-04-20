@@ -5,14 +5,14 @@ locals {
 module "bootstrap" {
   source = "./modules/node-group/"
 
-  cluster_id      = var.cluster_id
-  node_group_name = "bootstrap"
-  node_count      = var.bootstrap_count
-  region          = var.region
-  template_id     = data.exoscale_compute_template.rhcos.id
-  base_domain     = var.base_domain
-  instance_size   = "Extra-large"
-  disk_size       = 128
+  cluster_id    = var.cluster_id
+  role          = "bootstrap"
+  node_count    = var.bootstrap_count
+  region        = var.region
+  template_id   = data.exoscale_compute_template.rhcos.id
+  base_domain   = var.base_domain
+  instance_size = "Extra-large"
+  disk_size     = 128
 
   privnet_id               = var.use_privnet ? exoscale_network.clusternet[0].id : ""
   privnet_dhcp_reservation = local.bootstrap_ip

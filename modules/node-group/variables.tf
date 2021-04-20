@@ -2,7 +2,7 @@ variable "node_count" {
   type = number
 }
 
-variable "node_group_name" {
+variable "role" {
   type = string
 }
 

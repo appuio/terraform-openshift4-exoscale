@@ -1,13 +1,13 @@
 module "worker" {
   source = "./modules/node-group"
 
-  cluster_id      = var.cluster_id
-  node_group_name = "worker"
-  node_count      = var.worker_count
-  region          = var.region
-  template_id     = data.exoscale_compute_template.rhcos.id
-  base_domain     = var.base_domain
-  instance_size   = var.worker_size
+  cluster_id    = var.cluster_id
+  role          = "worker"
+  node_count    = var.worker_count
+  region        = var.region
+  template_id   = data.exoscale_compute_template.rhcos.id
+  base_domain   = var.base_domain
+  instance_size = var.worker_size
 
   privnet_id = var.use_privnet ? exoscale_network.clusternet[0].id : ""
   privnet_gw = local.privnet_gw

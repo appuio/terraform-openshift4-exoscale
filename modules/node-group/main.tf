@@ -11,7 +11,7 @@ locals {
       "config" : {
         "merge" : [
           {
-            "source" : local.ignition_source[var.node_group_name]
+            "source" : local.ignition_source[var.role]
           }
         ]
       },
@@ -63,13 +63,13 @@ locals {
 
 resource "random_id" "node_id" {
   count       = var.node_count
-  prefix      = "${var.node_group_name}-"
+  prefix      = "${var.role}-"
   byte_length = 2
 }
 
 resource "exoscale_affinity" "anti_affinity_group" {
-  name        = "${var.cluster_id}_${var.node_group_name}"
-  description = "${var.cluster_id} ${var.node_group_name} nodes"
+  name        = "${var.cluster_id}_${var.role}"
+  description = "${var.cluster_id} ${var.role} nodes"
   type        = "host anti-affinity"
 }
 
