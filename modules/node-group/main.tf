@@ -11,7 +11,7 @@ locals {
       "config" : {
         "merge" : [
           {
-            "source" : local.ignition_source[var.role]
+            "source" : lookup(local.ignition_source, var.role, local.ignition_source["worker"])
           }
         ]
       },
