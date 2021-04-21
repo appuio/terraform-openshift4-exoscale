@@ -26,15 +26,19 @@ frontend fe-api-ext
   mode tcp
   default_backend be-api
 
-%{if api_int}
+%{ if api_int ~}
 frontend fe-api
   bind ${api_int_ip}:6443
   mode tcp
   default_backend be-api
-%{endif}
+%{ endif ~}
 
 frontend fe-ign
+%{if api_int ~}
   bind ${api_int_ip}:22623
+%{else ~}
+  bind ${api_ip}:22623
+%{endif ~}
   mode tcp
   default_backend be-ign
 
@@ -50,11 +54,11 @@ frontend fe-router-https
 
 backend be-api
   balance roundrobin
-  server-template etcd- 3 api-member.${cluster_domain}:6443 check check-ssl verify none resolvers localdns init-addr none
+  server-template etcd- 4 api-member.${cluster_domain}:6443 check check-ssl verify none resolvers localdns init-addr none
 
 backend be-ign
   balance roundrobin
-  server-template etcd- 3 api-member.${cluster_domain}:22623 check check-ssl verify none resolvers localdns init-addr none
+  server-template etcd- 4 api-member.${cluster_domain}:22623 check check-ssl verify none resolvers localdns init-addr none
 
 backend be-router-http
   option httpchk GET /healthz/ready

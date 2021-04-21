@@ -55,21 +55,26 @@ resource "exoscale_compute" "lb" {
   ]
 
   user_data = format("%s\n%s", "#cloud-config", yamlencode({
-    "package_update" : true,
-    "package_upgrade" : true,
-    "packages" : ["haproxy", "keepalived"],
-    "bootcmd" : [
-      "iptables -t nat -A POSTROUTING -o ens0 -j MASQUERADE",
+    "package_update"  = true,
+    "package_upgrade" = true,
+    "packages" = [
+      "haproxy",
+      "keepalived"
+    ],
+    "bootcmd" = [
+      "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
+      "iptables -A FORWARD -i eth0 -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT",
+      "iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT",
       "sysctl -w net.ipv4.ip_forward=1",
       "sysctl -w net.ipv4.ip_nonlocal_bind=1",
       "ip link set eth1 up",
       "ip address add ${cidrhost(var.privnet_cidr, 2 + count.index)}/24 dev eth1"
     ],
-    "write_files" : [
+    "write_files" = [
       {
-        "path" : "/etc/keepalived/keepalived.conf",
-        "encoding" : "b64",
-        "content" : base64encode(templatefile(
+        "path"     = "/etc/keepalived/keepalived.conf",
+        "encoding" = "b64",
+        "content" = base64encode(templatefile(
           "${path.module}/templates/keepalived.conf.tmpl",
           {
             "api_ip"     = exoscale_ipaddress.api.ip_address
@@ -83,15 +88,15 @@ resource "exoscale_compute" "lb" {
         ))
       },
       {
-        "path" : "/etc/ursula/eth1.wrapper",
-        "encoding" : "b64",
-        "content" : filebase64("${path.module}/files/keepalived-notify-script"),
-        "permissions" : "0755"
+        "path"        = "/etc/ursula/eth1.wrapper",
+        "encoding"    = "b64",
+        "content"     = filebase64("${path.module}/files/keepalived-notify-script"),
+        "permissions" = "0755"
       },
       {
-        "path" : "/etc/ursula/config.yaml",
-        "encoding" : "b64",
-        "content" : base64encode(templatefile(
+        "path"     = "/etc/ursula/config.yaml",
+        "encoding" = "b64",
+        "content" = base64encode(templatefile(
           "${path.module}/templates/ursula.yaml.tmpl",
           {
             "api_key"    = var.lb_exoscale_api_key
@@ -102,12 +107,12 @@ resource "exoscale_compute" "lb" {
             ]
           }
         )),
-        "permissions" : "0600"
+        "permissions" = "0600"
       },
       {
-        "path" : "/etc/haproxy/haproxy.cfg",
-        "encoding" : "b64",
-        "content" : base64encode(templatefile(
+        "path"     = "/etc/haproxy/haproxy.cfg",
+        "encoding" = "b64",
+        "content" = base64encode(templatefile(
           "${path.module}/templates/haproxy.cfg.tmpl",
           {
             "api_ip"         = exoscale_ipaddress.api.ip_address
@@ -119,7 +124,8 @@ resource "exoscale_compute" "lb" {
         ))
       }
     ],
-    "runcmd" : [
+    "runcmd" = [
+      "while lsof -F p /var/lib/dpkg/lock 2>/dev/null; do echo \"Waiting for dpkg lock...\"; sleep 15; done",
       "curl -Lo /tmp/ursula.deb ${trimsuffix(var.bootstrap_bucket, "/")}/ursula.deb",
       "dpkg -i /tmp/ursula.deb",
       "systemctl restart keepalived",
