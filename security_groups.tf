@@ -143,10 +143,4 @@ resource "exoscale_security_group_rules" "worker" {
     ports                    = ["80", "443"]
     user_security_group_list = [exoscale_security_group.load_balancers.name]
   }
-  ingress {
-    description              = "Ingress controller UDP"
-    protocol                 = "UDP"
-    ports                    = ["80", "443"]
-    user_security_group_list = [exoscale_security_group.load_balancers.name]
-  }
 }
