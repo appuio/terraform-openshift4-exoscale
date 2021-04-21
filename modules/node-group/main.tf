@@ -76,6 +76,7 @@ resource "random_id" "node_id" {
 }
 
 resource "exoscale_affinity" "anti_affinity_group" {
+  count       = var.node_count > 0 ? 1 : 0
   name        = "${var.cluster_id}_${var.role}"
   description = "${var.cluster_id} ${var.role} nodes"
   type        = "host anti-affinity"
@@ -87,7 +88,7 @@ resource "exoscale_compute" "nodes" {
   hostname           = random_id.node_id[count.index].hex
   key_pair           = var.ssh_key_pair
   zone               = var.region
-  affinity_group_ids = [exoscale_affinity.anti_affinity_group.id]
+  affinity_group_ids = [exoscale_affinity.anti_affinity_group[0].id]
   template_id        = var.template_id
   size               = var.instance_size
   disk_size          = var.disk_size
