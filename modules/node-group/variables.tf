@@ -72,3 +72,8 @@ variable "privnet_dhcp_reservation" {
   type    = string
   default = ""
 }
+
+variable "node_state" {
+  type    = string
+  default = "Running"
+}

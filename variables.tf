@@ -59,6 +59,21 @@ variable "worker_size" {
   default = "Extra-large"
 }
 
+variable "bootstrap_state" {
+  type    = string
+  default = "Running"
+}
+
+variable "master_state" {
+  type    = string
+  default = "Running"
+}
+
+variable "worker_state" {
+  type    = string
+  default = "Running"
+}
+
 variable "ignition_ca" {
   type = string
 }

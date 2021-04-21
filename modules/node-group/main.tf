@@ -31,6 +31,7 @@ locals {
   DNS1=159.100.247.115
   DNS2=159.100.253.158
   EOF
+  privnet_iface = "ens4"
   privnet_config = {
     "files" : [
       {
@@ -43,15 +44,22 @@ locals {
       },
       {
         "filesystem" : "root",
-        "path" : "/etc/sysconfig/network-scripts/ifcfg-ens6",
+        "path" : "/etc/sysconfig/network-scripts/ifcfg-${local.privnet_iface}",
         "mode" : 420,
         "contents" : {
-          "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile("${path.module}/templates/ifcfg.tmpl", { device = "ens6", enabled = "yes", custom_dns = local.dns_servers }))}"
+          "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile(
+            "${path.module}/templates/ifcfg.tmpl",
+            {
+              device     = local.privnet_iface
+              enabled    = "yes"
+              custom_dns = local.dns_servers
+            }
+          ))}"
         }
       },
       {
         "filesystem" : "root",
-        "path" : "/etc/sysconfig/network-scripts/route-ens6",
+        "path" : "/etc/sysconfig/network-scripts/route-${local.privnet_iface}",
         "mode" : 420,
         "contents" : {
           "source" : "data:text/plain;charset=utf-8;base64,${base64encode("default via ${var.privnet_gw}")}"
@@ -85,6 +93,7 @@ resource "exoscale_compute" "nodes" {
   disk_size          = var.disk_size
   security_group_ids = var.security_group_ids
   user_data          = local.user_data
+  state              = var.node_state
 }
 
 resource "exoscale_nic" "nodes" {

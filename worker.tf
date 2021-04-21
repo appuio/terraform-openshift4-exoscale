@@ -8,6 +8,7 @@ module "worker" {
   template_id   = data.exoscale_compute_template.rhcos.id
   base_domain   = var.base_domain
   instance_size = var.worker_size
+  node_state    = var.worker_state
 
   use_privnet = var.use_privnet
   privnet_id  = var.use_privnet ? exoscale_network.clusternet[0].id : ""
