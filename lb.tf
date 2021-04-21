@@ -132,6 +132,12 @@ resource "exoscale_compute" "lb" {
       "shutdown --reboot +1 'Reboot for system setup'"
     ]
   }))
+
+  lifecycle {
+    ignore_changes = [
+      template_id
+    ]
+  }
 }
 
 resource "exoscale_network" "lb_vrrp" {

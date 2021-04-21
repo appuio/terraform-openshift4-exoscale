@@ -95,6 +95,12 @@ resource "exoscale_compute" "nodes" {
   security_group_ids = var.security_group_ids
   user_data          = local.user_data
   state              = var.node_state
+
+  lifecycle {
+    ignore_changes = [
+      template_id
+    ]
+  }
 }
 
 resource "exoscale_nic" "nodes" {
