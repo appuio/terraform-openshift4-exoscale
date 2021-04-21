@@ -31,7 +31,7 @@ variable "privnet_cidr" {
 
 variable "use_privnet" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "bootstrap_count" {
