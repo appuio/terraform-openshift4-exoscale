@@ -31,6 +31,7 @@ locals {
   DNS1=159.100.247.115
   DNS2=159.100.253.158
   EOF
+
   privnet_iface = "ens4"
   privnet_config = {
     "files" : [
