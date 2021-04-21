@@ -1,8 +1,8 @@
 locals {
   ignition_source = {
-    "bootstrap" : "${var.bootstrap_bucket}/bootstrap.ign"
-    "master" : "https://${var.api_int}:22623/config/master"
-    "worker" : "https://${var.api_int}:22623/config/worker"
+    "bootstrap" = "${trimsuffix(var.bootstrap_bucket, "/")}/bootstrap.ign"
+    "master"    = "https://${var.api_int}:22623/config/master"
+    "worker"    = "https://${var.api_int}:22623/config/worker"
   }
 
   user_data = base64encode(jsonencode({
