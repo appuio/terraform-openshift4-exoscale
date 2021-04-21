@@ -26,7 +26,7 @@ module "master" {
 }
 
 resource "exoscale_domain_record" "master_api_member" {
-  count       = var.master_count
+  count       = var.master_state == "Running" ? var.master_count : 0
   domain      = exoscale_domain.cluster.id
   name        = "api-member"
   ttl         = 60
@@ -35,7 +35,7 @@ resource "exoscale_domain_record" "master_api_member" {
 }
 
 resource "exoscale_domain_record" "etcd" {
-  count       = var.master_count
+  count       = var.master_state == "Running" ? var.master_count : 0
   domain      = exoscale_domain.cluster.id
   name        = "etcd-${count.index}"
   ttl         = 60
@@ -44,7 +44,7 @@ resource "exoscale_domain_record" "etcd" {
 }
 
 resource "exoscale_domain_record" "etcd_srv" {
-  count       = var.master_count
+  count       = var.master_state == "Running" ? var.master_count : 0
   domain      = exoscale_domain.cluster.id
   name        = "_etcd-server-ssl._tcp"
   ttl         = 60

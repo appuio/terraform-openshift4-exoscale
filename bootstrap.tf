@@ -32,7 +32,7 @@ module "bootstrap" {
 }
 
 resource "exoscale_domain_record" "bootstrap_api_member" {
-  count       = var.bootstrap_count
+  count       = var.bootstrap_state == "Running" ? var.bootstrap_count : 0
   domain      = exoscale_domain.cluster.id
   name        = "api-member"
   ttl         = 60

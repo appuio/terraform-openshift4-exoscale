@@ -26,7 +26,7 @@ module "worker" {
 }
 
 resource "exoscale_domain_record" "router_member" {
-  count       = var.worker_count
+  count       = var.worker_state == "Running" ? var.worker_count : 0
   domain      = exoscale_domain.cluster.id
   name        = "router-member"
   ttl         = 60
