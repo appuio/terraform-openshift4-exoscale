@@ -12,7 +12,7 @@ variable "rhcos_template" {
 }
 
 variable "base_domain" {
-  default = "appuio-beta.ch"
+  type = string
 }
 
 variable "ssh_key" {
