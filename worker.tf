@@ -1,37 +1,36 @@
-resource "exoscale_affinity" "worker" {
-  name        = "${var.cluster_id}_worker"
-  description = "${var.cluster_id} worker nodes"
-  type        = "host anti-affinity"
-}
+module "worker" {
+  source = "./modules/node-group"
 
-resource "exoscale_compute" "worker" {
-  count              = var.worker_count
-  display_name       = "${random_id.worker[count.index].hex}.${var.cluster_id}.${var.base_domain}"
-  hostname           = random_id.worker[count.index].hex
-  key_pair           = exoscale_ssh_keypair.admin.name
-  zone               = var.region
-  affinity_group_ids = [exoscale_affinity.worker.id]
-  template_id        = data.exoscale_compute_template.rhcos.id
-  size               = "Extra-large"
-  disk_size          = 128
+  cluster_id    = var.cluster_id
+  role          = "worker"
+  node_count    = var.worker_count
+  region        = var.region
+  template_id   = data.exoscale_compute_template.rhcos.id
+  base_domain   = var.base_domain
+  instance_size = var.worker_size
+  node_state    = var.worker_state
+  ssh_keypair   = local.ssh_key_name
+
+  use_privnet = var.use_privnet
+  privnet_id  = var.use_privnet ? exoscale_network.clusternet[0].id : ""
+  privnet_gw  = local.privnet_gw
+
+  api_int     = exoscale_domain_record.api_int.hostname
+  ignition_ca = var.ignition_ca
+
   security_group_ids = [
     exoscale_security_group.all_machines.id,
     exoscale_security_group.worker.id,
   ]
-  user_data = base64encode(templatefile(local.ignition_template, {
-    role       = "worker"
-    cluster_id = var.cluster_id
-    region     = var.region
-    hostname   = random_id.worker[count.index].hex
-  }))
 
-  depends_on = [
-    exoscale_secondary_ipaddress.master,
-  ]
+  bootstrap_bucket = var.bootstrap_bucket
 }
 
-resource "exoscale_secondary_ipaddress" "ingress" {
-  count      = var.worker_count
-  compute_id = exoscale_compute.worker[count.index].id
-  ip_address = exoscale_ipaddress.ingress.ip_address
+resource "exoscale_domain_record" "router_member" {
+  count       = var.worker_state == "Running" ? var.worker_count : 0
+  domain      = exoscale_domain.cluster.id
+  name        = "router-member"
+  ttl         = 60
+  record_type = "A"
+  content     = module.worker.ip_address[count.index]
 }

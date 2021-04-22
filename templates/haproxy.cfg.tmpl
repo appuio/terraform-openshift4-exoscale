@@ -1,0 +1,78 @@
+# This file is managed by Terraform
+global
+  daemon
+  log  /dev/log local0
+  log  /dev/log local1 notice
+  maxconn  2048
+  pidfile  /var/run/haproxy.pid
+  stats  socket /var/run/haproxy.sock level admin
+  tune.ssl.default-dh-param  2048
+
+defaults
+  balance  roundrobin
+  default-server  init-addr last,libc,none
+  log  global
+  mode  tcp
+  option  tcplog
+  option  httpchk GET /healthz
+  timeout  connect 5s
+  timeout  client 50s
+  timeout  tunnel 1h
+  timeout  http-request 10s
+  timeout  server 61m
+
+frontend fe-api-ext
+  bind ${api_ip}:6443
+  mode tcp
+  default_backend be-api
+
+%{ if api_int ~}
+frontend fe-api
+  bind ${api_int_ip}:6443
+  mode tcp
+  default_backend be-api
+%{ endif ~}
+
+frontend fe-ign
+%{if api_int ~}
+  bind ${api_int_ip}:22623
+%{else ~}
+  bind ${api_ip}:22623
+%{endif ~}
+  mode tcp
+  default_backend be-ign
+
+frontend fe-router-http
+  bind ${router_ip}:80
+  mode tcp
+  default_backend be-router-http
+
+frontend fe-router-https
+  bind ${router_ip}:443
+  mode tcp
+  default_backend be-router-https
+
+backend be-api
+  balance roundrobin
+  server-template etcd- 4 api-member.${cluster_domain}:6443 check check-ssl verify none resolvers localdns init-addr none
+
+backend be-ign
+  balance roundrobin
+  server-template etcd- 4 api-member.${cluster_domain}:22623 check check-ssl verify none resolvers localdns init-addr none
+
+backend be-router-http
+  option httpchk GET /healthz/ready
+  server-template node- 3 router-member.${cluster_domain}:80 check port 1936 check-ssl verify none resolvers localdns init-addr none
+
+backend be-router-https
+  option httpchk GET /healthz/ready
+  server-template node- 3 router-member.${cluster_domain}:443 check port 1936 check-ssl verify none resolvers localdns init-addr none
+
+resolvers localdns
+  nameserver dns1 127.0.0.53:53
+  accepted_payload_size 8192
+
+listen stats
+  mode http
+  bind localhost:8888 
+  stats uri /

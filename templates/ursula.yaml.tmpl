@@ -1,0 +1,12 @@
+# Managed by Terraform
+---
+provider: exoscale
+cloudscale:
+exoscale:
+  key: ${api_key}
+  secret: ${api_secret}
+lock-file-template: "/var/run/keepalived.ursula.%s.lock"
+managed-addresses:
+%{for addr in managed_addrs ~}
+- ${addr}
+%{endfor ~}

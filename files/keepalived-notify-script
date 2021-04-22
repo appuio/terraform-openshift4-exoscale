@@ -1,0 +1,10 @@
+#!/bin/bash
+# Managed by Terraform
+
+set -e -u -o pipefail
+
+ursula_bin=/usr/bin/ursula
+log_name=keepalived-ursula-eth1
+config_file=/etc/ursula/config.yaml
+
+"$ursula_bin" "$config_file" "$@" 2>&1 | logger --tag "$log_name"
