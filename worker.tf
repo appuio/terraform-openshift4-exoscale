@@ -9,7 +9,7 @@ module "worker" {
   base_domain   = var.base_domain
   instance_size = var.worker_size
   node_state    = var.worker_state
-  ssh_keypair   = local.ssh_key_name
+  ssh_key_pair  = local.ssh_key_name
 
   use_privnet = var.use_privnet
   privnet_id  = var.use_privnet ? exoscale_network.clusternet[0].id : ""
