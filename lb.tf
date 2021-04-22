@@ -43,7 +43,7 @@ resource "exoscale_compute" "lb" {
   count              = var.lb_count
   display_name       = "${random_id.lb[count.index].hex}.${var.cluster_id}.${var.base_domain}"
   hostname           = random_id.lb[count.index].hex
-  key_pair           = var.existing_keypair
+  key_pair           = local.ssh_key_name
   zone               = var.region
   affinity_group_ids = [exoscale_affinity.lb.id]
   template_id        = data.exoscale_compute_template.ubuntu2004.id
