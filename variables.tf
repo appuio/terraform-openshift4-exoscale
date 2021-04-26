@@ -44,6 +44,11 @@ variable "worker_count" {
   default = 3
 }
 
+variable "infra_count" {
+  type    = number
+  default = 3
+}
+
 variable "master_count" {
   type    = number
   default = 3
@@ -59,6 +64,11 @@ variable "worker_size" {
   default = "Extra-large"
 }
 
+variable "infra_size" {
+  type    = string
+  default = "Extra-large"
+}
+
 variable "bootstrap_state" {
   type    = string
   default = "Running"
@@ -70,6 +80,11 @@ variable "master_state" {
 }
 
 variable "worker_state" {
+  type    = string
+  default = "Running"
+}
+
+variable "infra_state" {
   type    = string
   default = "Running"
 }
