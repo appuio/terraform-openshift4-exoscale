@@ -131,12 +131,12 @@ resource "exoscale_security_group_rules" "control_plane" {
   }
 }
 
-resource "exoscale_security_group" "worker" {
-  name        = "${var.cluster_id}_worker"
-  description = "${var.cluster_id} worker nodes"
+resource "exoscale_security_group" "infra" {
+  name        = "${var.cluster_id}_infra"
+  description = "${var.cluster_id} infra nodes"
 }
-resource "exoscale_security_group_rules" "worker" {
-  security_group = exoscale_security_group.worker.name
+resource "exoscale_security_group_rules" "infra" {
+  security_group = exoscale_security_group.infra.name
   ingress {
     description              = "Ingress controller TCP"
     protocol                 = "TCP"
