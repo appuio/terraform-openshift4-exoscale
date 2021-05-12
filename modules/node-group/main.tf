@@ -5,6 +5,8 @@ locals {
     "worker"    = "https://${var.api_int}:22623/config/worker"
   }
 
+  is_storage_cluster = var.storage_disk_size > 0
+
   user_data = base64encode(jsonencode({
     "ignition" : {
       "version" : "3.1.0",
@@ -23,7 +25,10 @@ locals {
         }
       }
     },
-    "storage" : var.use_privnet ? local.privnet_config : {}
+    "storage" : merge(
+      var.use_privnet ? local.privnet_config : {},
+      local.is_storage_cluster ? local.storage_cluster_config : {},
+    )
   }))
 
   # TODO: can we do something smarter than this?
@@ -68,6 +73,30 @@ locals {
       }
     ]
   }
+
+  storage_cluster_config = {
+    "disks" : [
+      {
+        "device" : "/dev/vda",
+        "partitions" : [
+          {
+            "label" : "root",
+            "number" : 4,
+            "shouldExist" : true,
+            "sizeMiB" : var.disk_size * 1024,
+            "wipePartitionEntry" : true
+          },
+          {
+            "label" : "storagepool",
+            "number" : 0,
+            "shouldExist" : true,
+            "sizeMiB" : 0,
+            "startMiB" : 0
+          }
+        ]
+      }
+    ]
+  }
 }
 
 resource "random_id" "node_id" {
@@ -92,7 +121,7 @@ resource "exoscale_compute" "nodes" {
   affinity_group_ids = [exoscale_affinity.anti_affinity_group[0].id]
   template_id        = var.template_id
   size               = var.instance_size
-  disk_size          = var.disk_size
+  disk_size          = var.disk_size + var.storage_disk_size
   security_group_ids = var.security_group_ids
   user_data          = local.user_data
   state              = var.node_state

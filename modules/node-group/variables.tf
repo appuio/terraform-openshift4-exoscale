@@ -82,3 +82,14 @@ variable "node_state" {
   type    = string
   default = "Running"
 }
+
+variable "storage_disk_size" {
+  type    = number
+  default = 0
+
+  validation {
+    # minimum TBD
+    condition     = var.storage_disk_size == 0 || var.storage_disk_size >= 180
+    error_message = "The minimum supported storage disk size is 180GB."
+  }
+}

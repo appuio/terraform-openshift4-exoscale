@@ -25,10 +25,12 @@ The LB VMs run HAproxy, keepalived, and [Floaty](https://github.com/vshn/floaty/
 
 The module provides variables to
 
-* control the instance size of each VM type (LB, bootstrap, master, infra and worker).
+* control the instance size of each VM type (LB, bootstrap, master, infra, storage, and worker).
   Note that we don't officially support smaller instance sizes than the ones provided as defaults.
-* control the count of each VM type (LB, bootstrap, master, infra, and worker).
+* control the count of each VM type (LB, bootstrap, master, infra, storage, and worker).
   Note that we don't recommend changing the count for the LBs and masters from their default values.
+* control the size of the empty partition on the storage nodes.
+  This partition can be used as backing storage by in-cluster storage clusters, such as Rook-Ceph.
 * specify the cluster's id, Exoscale region, base domain, SSH key, RHCOS template, and Ignition API CA.
 * specify a bootstrap S3 bucket (required only to provision the boostrap node)
 * specify an Exoscale API key and secret for Floaty
