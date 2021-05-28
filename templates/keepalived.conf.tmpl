@@ -9,7 +9,7 @@ vrrp_instance eth1 {
   garp_master_refresh         30
 
 
-  notify /etc/ursula/eth1.wrapper
+  notify /etc/floaty/eth1.wrapper
 
 
   authentication {
@@ -31,4 +31,3 @@ vrrp_instance eth1 {
     ${peer_ip}
   }
 }
-
