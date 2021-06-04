@@ -88,16 +88,16 @@ resource "exoscale_compute" "lb" {
         ))
       },
       {
-        "path"        = "/etc/ursula/eth1.wrapper",
+        "path"        = "/etc/floaty/eth1.wrapper",
         "encoding"    = "b64",
         "content"     = filebase64("${path.module}/files/keepalived-notify-script"),
         "permissions" = "0755"
       },
       {
-        "path"     = "/etc/ursula/config.yaml",
+        "path"     = "/etc/floaty/config.yaml",
         "encoding" = "b64",
         "content" = base64encode(templatefile(
-          "${path.module}/templates/ursula.yaml.tmpl",
+          "${path.module}/templates/floaty.yaml.tmpl",
           {
             "api_key"    = var.lb_exoscale_api_key
             "api_secret" = var.lb_exoscale_api_secret
@@ -126,8 +126,8 @@ resource "exoscale_compute" "lb" {
     ],
     "runcmd" = [
       "while lsof -F p /var/lib/dpkg/lock 2>/dev/null; do echo \"Waiting for dpkg lock...\"; sleep 15; done",
-      "curl -Lo /tmp/ursula.deb ${trimsuffix(var.bootstrap_bucket, "/")}/ursula.deb",
-      "dpkg -i /tmp/ursula.deb",
+      "curl -Lo /tmp/floaty.deb https://github.com/vshn/floaty/releases/latest/download/floaty_linux_amd64.deb",
+      "dpkg -i /tmp/floaty.deb",
       "systemctl restart keepalived",
       "shutdown --reboot +1 'Reboot for system setup'"
     ]
