@@ -28,6 +28,10 @@ resource "random_id" "lb" {
   byte_length = 1
 }
 
+locals {
+  instance_fqdns = formatlist("%s.${var.cluster_id}.${var.base_domain}", random_id.lb[*].hex)
+}
+
 resource "exoscale_affinity" "lb" {
   name        = "${var.cluster_id}_lb"
   description = "${var.cluster_id} lb nodes"
@@ -39,9 +43,50 @@ data "exoscale_compute_template" "ubuntu2004" {
   name = "Linux Ubuntu 20.04 LTS 64-bit"
 }
 
+resource "gitfile_checkout" "appuio_hieradata" {
+  repo   = "https://${var.hieradata_repo_user}@git.vshn.net/appuio/appuio_hieradata.git"
+  path   = "${path.root}/appuio_hieradata"
+
+  lifecycle {
+    ignore_changes = [
+      branch
+    ]
+  }
+}
+
+resource "local_file" "lb_hieradata" {
+  content = templatefile(
+    "${path.module}/templates/hieradata.yaml.tmpl",
+    {
+      "cluster_id" = var.cluster_id
+      "api_ip"     = exoscale_ipaddress.api.ip_address
+      "router_ip"  = exoscale_ipaddress.ingress.ip_address
+      "api_key"    = var.lb_exoscale_api_key
+      "api_secret" = var.lb_exoscale_api_secret
+      "nodes"      = local.instance_fqdns
+      "backends"   = {
+        "api"    = exoscale_domain_record.etcd[*].hostname,
+        "router" = module.infra.ip_address[*],
+      }
+      "bootstrap_node" = var.bootstrap_count > 0 ? module.bootstrap.ip_address[0] : ""
+    })
+
+  filename             = "${path.cwd}/appuio_hieradata/lbaas/${var.cluster_id}.yaml"
+  file_permission      = "0644"
+  directory_permission = "0755"
+
+  depends_on = [
+    gitfile_checkout.appuio_hieradata
+  ]
+
+  provisioner "local-exec" {
+    command     = "${path.module}/files/commit-hieradata.sh ${var.cluster_id}"
+  }
+}
+
 resource "exoscale_compute" "lb" {
   count              = var.lb_count
-  display_name       = "${random_id.lb[count.index].hex}.${var.cluster_id}.${var.base_domain}"
+  display_name       = local.instance_fqdns[count.index]
   hostname           = random_id.lb[count.index].hex
   key_pair           = local.ssh_key_name
   zone               = var.region
@@ -138,6 +183,10 @@ resource "exoscale_compute" "lb" {
       template_id
     ]
   }
+
+  depends_on = [
+    local_file.lb_hieradata
+  ]
 }
 
 resource "exoscale_network" "lb_vrrp" {
