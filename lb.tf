@@ -43,6 +43,35 @@ data "exoscale_compute_template" "ubuntu2004" {
   name = "Linux Ubuntu 20.04 LTS 64-bit"
 }
 
+resource "null_resource" "register_lb" {
+  triggers = {
+    # Refresh resource when script changes -- this is probaby not required for production
+    script_sha1 = filesha1("${path.module}/files/register-server.sh")
+    # Refresh resource when lb fqdn changes
+    lb_id       = local.instance_fqdns[count.index]
+  }
+
+  count = var.lb_count
+
+  provisioner "local-exec" {
+    command = "${path.module}/files/register-server.sh"
+    environment = {
+      CONTROL_VSHN_NET_TOKEN = var.control_vshn_net_token
+      SERVER_FQDN            = local.instance_fqdns[count.index]
+      # This assumes that the first part of var.region is the encdata region
+      # (country code for Exoscale).
+      SERVER_REGION          = split("-", var.region)[0]
+      # The encdata service doesn't allow dashes, so we replace them with
+      # underscores.
+      # This assumes that any zone configurations already exist in Puppet
+      # hieradata.
+      SERVER_ZONE            = replace(var.region, "-", "_")
+      # Cluster id is used as encdata stage
+      CLUSTER_ID             = var.cluster_id
+    }
+  }
+}
+
 resource "gitfile_checkout" "appuio_hieradata" {
   repo   = "https://${var.hieradata_repo_user}@git.vshn.net/appuio/appuio_hieradata.git"
   path   = "${path.root}/appuio_hieradata"
@@ -185,6 +214,7 @@ resource "exoscale_compute" "lb" {
   }
 
   depends_on = [
+    null_resource.register_lb,
     local_file.lb_hieradata
   ]
 }

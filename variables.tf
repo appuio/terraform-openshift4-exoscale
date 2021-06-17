@@ -107,3 +107,7 @@ variable "bootstrap_bucket" {
 variable "hieradata_repo_user" {
   type = string
 }
+
+variable "control_vshn_net_token" {
+  type = string
+}
