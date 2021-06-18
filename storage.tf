@@ -22,7 +22,7 @@ module "storage" {
 
   security_group_ids = [
     exoscale_security_group.all_machines.id,
-    exoscale_security_group.infra.id,
+    exoscale_security_group.storage.id,
   ]
 
   bootstrap_bucket = var.bootstrap_bucket
