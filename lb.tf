@@ -113,6 +113,8 @@ resource "gitfile_checkout" "appuio_hieradata" {
   repo   = "https://${var.hieradata_repo_user}@git.vshn.net/appuio/appuio_hieradata.git"
   path   = "${path.root}/appuio_hieradata"
 
+  count = var.lb_count > 0 ? 1 : 0
+
   lifecycle {
     ignore_changes = [
       branch
@@ -121,6 +123,8 @@ resource "gitfile_checkout" "appuio_hieradata" {
 }
 
 resource "local_file" "lb_hieradata" {
+  count = var.lb_count > 0 ? 1 : 0
+
   content = templatefile(
     "${path.module}/templates/hieradata.yaml.tmpl",
     {
@@ -142,7 +146,7 @@ resource "local_file" "lb_hieradata" {
   directory_permission = "0755"
 
   depends_on = [
-    gitfile_checkout.appuio_hieradata
+    gitfile_checkout.appuio_hieradata[0]
   ]
 
   provisioner "local-exec" {
@@ -204,7 +208,7 @@ resource "exoscale_compute" "lb" {
 
   depends_on = [
     null_resource.register_lb,
-    local_file.lb_hieradata
+    local_file.lb_hieradata[0]
   ]
 }
 
