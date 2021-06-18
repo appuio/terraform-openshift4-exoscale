@@ -236,3 +236,12 @@ resource "exoscale_nic" "lb" {
   # Privnet CIDR IPs starting from .2 when using clusternet
   ip_address = var.use_privnet ? cidrhost(var.privnet_cidr, 2 + count.index) : null
 }
+
+resource "exoscale_domain_record" "lb" {
+  count       = var.lb_count
+  domain      = exoscale_domain.cluster.id
+  name        = random_id.lb[count.index].hex
+  ttl         = 600
+  record_type = "A"
+  content     = exoscale_compute.lb[count.index].ip_address
+}
