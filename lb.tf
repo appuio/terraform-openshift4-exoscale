@@ -30,6 +30,43 @@ resource "random_id" "lb" {
 
 locals {
   instance_fqdns = formatlist("%s.${var.cluster_id}.${var.base_domain}", random_id.lb[*].hex)
+
+  common_user_data = {
+    "package_update"  = true,
+    "package_upgrade" = true,
+    "runcmd" = [
+      "sleep '5'",
+      "wget -O /tmp/puppet-source.deb https://apt.puppetlabs.com/puppet6-release-focal.deb",
+      "dpkg -i /tmp/puppet-source.deb",
+      "rm /tmp/puppet-source.deb",
+      "apt-get update",
+      "apt-get -y install puppet-agent",
+      "apt-get -y purge snapd",
+      "mkdir -p /etc/puppetlabs/facter/facts.d",
+      "mv /run/tmp/ec2_userdata_override.yaml /etc/puppetlabs/facter/facts.d/",
+      "netplan apply",
+      ["bash", "-c",
+       "set +e -x; for ((i=0; i < 3; ++i)); do /opt/puppetlabs/bin/puppet facts && break; done; for ((i=0; i < 3; ++i)); do /opt/puppetlabs/bin/puppet agent -t --server master.puppet.vshn.net && break; done"],
+      "sleep 5",
+      "shutdown --reboot +1 'Reboot for system setup'",
+    ],
+  }
+  common_write_files = [
+    {
+      path       = "/etc/netplan/60-eth1.yaml"
+      "encoding" = "b64"
+      "content"  = base64encode(yamlencode({
+        "network" = {
+          "ethernets" = {
+            "eth1" = {
+              "dhcp4"= true,
+            },
+          },
+          "version" = 2,
+        }
+      }))
+    }
+  ]
 }
 
 resource "exoscale_affinity" "lb" {
@@ -128,84 +165,36 @@ resource "exoscale_compute" "lb" {
     exoscale_security_group.load_balancers.id
   ]
 
-  user_data = format("%s\n%s", "#cloud-config", yamlencode({
-    "package_update"  = true,
-    "package_upgrade" = true,
-    "packages" = [
-      "haproxy",
-      "keepalived"
-    ],
-    "bootcmd" = [
-      "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE",
-      "iptables -A FORWARD -i eth0 -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT",
-      "iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT",
-      "sysctl -w net.ipv4.ip_forward=1",
-      "sysctl -w net.ipv4.ip_nonlocal_bind=1",
-      "ip link set eth1 up",
-      "ip address add ${cidrhost(var.privnet_cidr, 2 + count.index)}/24 dev eth1"
-    ],
-    "write_files" = [
-      {
-        "path"     = "/etc/keepalived/keepalived.conf",
-        "encoding" = "b64",
-        "content" = base64encode(templatefile(
-          "${path.module}/templates/keepalived.conf.tmpl",
-          {
-            "api_ip"     = exoscale_ipaddress.api.ip_address
-            "router_ip"  = exoscale_ipaddress.ingress.ip_address
-            "api_int"    = var.use_privnet
-            "api_int_ip" = local.privnet_api
-            "gw_int_ip"  = local.privnet_gw
-            "peer_ip"    = count.index == 0 ? cidrhost(var.privnet_cidr, 3) : cidrhost(var.privnet_cidr, 2)
-            "prio"       = (var.lb_count - count.index) * 10
-          }
-        ))
-      },
-      {
-        "path"        = "/etc/floaty/eth1.wrapper",
-        "encoding"    = "b64",
-        "content"     = filebase64("${path.module}/files/keepalived-notify-script"),
-        "permissions" = "0755"
-      },
-      {
-        "path"     = "/etc/floaty/config.yaml",
-        "encoding" = "b64",
-        "content" = base64encode(templatefile(
-          "${path.module}/templates/floaty.yaml.tmpl",
-          {
-            "api_key"    = var.lb_exoscale_api_key
-            "api_secret" = var.lb_exoscale_api_secret
-            "managed_addrs" = [
-              exoscale_ipaddress.api.ip_address,
-              exoscale_ipaddress.ingress.ip_address
-            ]
-          }
-        )),
-        "permissions" = "0600"
-      },
-      {
-        "path"     = "/etc/haproxy/haproxy.cfg",
-        "encoding" = "b64",
-        "content" = base64encode(templatefile(
-          "${path.module}/templates/haproxy.cfg.tmpl",
-          {
-            "api_ip"         = exoscale_ipaddress.api.ip_address
-            "router_ip"      = exoscale_ipaddress.ingress.ip_address
-            "api_int"        = var.use_privnet
-            "api_int_ip"     = local.privnet_api
-            "cluster_domain" = local.cluster_domain
-          }
-        ))
-      }
-    ],
-    "runcmd" = [
-      "while lsof -F p /var/lib/dpkg/lock 2>/dev/null; do echo \"Waiting for dpkg lock...\"; sleep 15; done",
-      "curl -Lo /tmp/floaty.deb https://github.com/vshn/floaty/releases/latest/download/floaty_linux_amd64.deb",
-      "dpkg -i /tmp/floaty.deb",
-      "systemctl restart keepalived",
-      "shutdown --reboot +1 'Reboot for system setup'"
-    ]
-  }))
+  user_data = format("#cloud-config\n%s", yamlencode(merge(
+    local.common_user_data,
+    {
+      "fqdn"             = local.instance_fqdns[count.index],
+      "hostname"         = random_id.lb[count.index].hex,
+      "manage_etc_hosts" = true,
+    },
+    // Override ec2_userdata fact with a clean copy of the userdata, as
+    // Exoscale presents userdata gzipped which confuses facter completely.
+    // TODO: check how we do this using server-up.
+    {
+      "write_files" = concat(local.common_write_files, [
+        {
+          path       = "/run/tmp/ec2_userdata_override.yaml"
+          "encoding" = "b64"
+          "content"  = base64encode(yamlencode({
+              "ec2_userdata" = format("#cloud-config\n%s", yamlencode(merge(
+                local.common_user_data,
+                {
+                  "fqdn"             = local.instance_fqdns[count.index],
+                  "hostname"         = random_id.lb[count.index].hex,
+                  "manage_etc_hosts" = true,
+                  "write_files"      = local.common_write_files,
+                }
+              )))
+            }))
+        }
+      ])
+    }
+  )))
 
   lifecycle {
     ignore_changes = [

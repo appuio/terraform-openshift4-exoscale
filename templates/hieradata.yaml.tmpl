@@ -1,5 +1,4 @@
 # Managed by Terraform for Project Syn cluster ${cluster_id}
-# Cluster catalog 
 profile_openshift4_gateway::nodes:
 %{ for node in nodes ~}
   - ${node}
@@ -15,14 +14,14 @@ profile_openshift4_gateway::floating_address_settings:
   key: ${api_key}
   secret: ${api_secret}
 profile_openshift4_gateway::backends:
-  'api':
+  'api':%{ if length(backends["api"]) == 0 && bootstrap_node == "" } []%{ endif }
 %{ for be in backends["api"] ~}
     - ${be}
 %{ endfor ~}
 %{ if bootstrap_node != "" ~}
     - ${bootstrap_node}
 %{ endif ~}
-  'router':
+  'router':%{ if length(backends["router"]) == 0 } []%{ endif }
 %{ for be in backends["router"] ~}
     - ${be}
 %{ endfor ~}
