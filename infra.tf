@@ -12,7 +12,7 @@ module "infra" {
   ssh_key_pair  = local.ssh_key_name
 
   use_privnet = var.use_privnet
-  privnet_id  = var.use_privnet ? exoscale_network.clusternet[0].id : ""
+  privnet_id  = var.use_privnet ? exoscale_network.clusternet.id : ""
   privnet_gw  = local.privnet_gw
 
   api_int     = exoscale_domain_record.api_int.hostname

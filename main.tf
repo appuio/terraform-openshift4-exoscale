@@ -30,7 +30,6 @@ resource "exoscale_ssh_keypair" "admin" {
 }
 
 resource "exoscale_network" "clusternet" {
-  count        = var.use_privnet ? 1 : 0
   zone         = var.region
   name         = "${var.cluster_id}_clusternet"
   display_text = "${var.cluster_id} private network"

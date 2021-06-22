@@ -212,22 +212,14 @@ resource "exoscale_compute" "lb" {
   ]
 }
 
-resource "exoscale_network" "lb_vrrp" {
-  # only create the lb-vrrp network when we're not deploying the cluster into
-  # a private network anyway.
-  count        = var.use_privnet ? 0 : 1
-  zone         = var.region
-  name         = "${var.cluster_id}_lb_vrrp"
-  display_text = "${var.cluster_id} LB VRRP network"
-}
-
 resource "exoscale_nic" "lb" {
   count      = var.lb_count
   compute_id = exoscale_compute.lb[count.index].id
   # Use cluster network if it's provisioned, lb_vrrp network otherwise
-  network_id = var.use_privnet ? exoscale_network.clusternet[0].id : exoscale_network.lb_vrrp[0].id
-  # Privnet CIDR IPs starting from .2 when using clusternet
-  ip_address = var.use_privnet ? cidrhost(var.privnet_cidr, 2 + count.index) : null
+  network_id = exoscale_network.clusternet.id
+  # Privnet CIDR IPs starting from .21
+  # (IPs .1,.2,.3 will be assigned by Puppet profile_openshift4_gateway)
+  ip_address = cidrhost(var.privnet_cidr, 21 + count.index)
 }
 
 resource "exoscale_domain_record" "lb" {
