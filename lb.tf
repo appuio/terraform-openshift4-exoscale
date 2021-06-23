@@ -46,7 +46,7 @@ locals {
       "mv /run/tmp/ec2_userdata_override.yaml /etc/puppetlabs/facter/facts.d/",
       "netplan apply",
       ["bash", "-c",
-       "set +e -x; for ((i=0; i < 3; ++i)); do /opt/puppetlabs/bin/puppet facts && break; done; for ((i=0; i < 3; ++i)); do /opt/puppetlabs/bin/puppet agent -t --server master.puppet.vshn.net && break; done"],
+      "set +e -x; for ((i=0; i < 3; ++i)); do /opt/puppetlabs/bin/puppet facts && break; done; for ((i=0; i < 3; ++i)); do /opt/puppetlabs/bin/puppet agent -t --server master.puppet.vshn.net && break; done"],
       "sleep 5",
       "shutdown --reboot +1 'Reboot for system setup'",
     ],
@@ -55,11 +55,11 @@ locals {
     {
       path       = "/etc/netplan/60-eth1.yaml"
       "encoding" = "b64"
-      "content"  = base64encode(yamlencode({
+      "content" = base64encode(yamlencode({
         "network" = {
           "ethernets" = {
             "eth1" = {
-              "dhcp4"= true,
+              "dhcp4" = true,
             },
           },
           "version" = 2,
@@ -85,7 +85,7 @@ resource "null_resource" "register_lb" {
     # Refresh resource when script changes -- this is probaby not required for production
     script_sha1 = filesha1("${path.module}/files/register-server.sh")
     # Refresh resource when lb fqdn changes
-    lb_id       = local.instance_fqdns[count.index]
+    lb_id = local.instance_fqdns[count.index]
   }
 
   count = var.lb_count
@@ -97,21 +97,21 @@ resource "null_resource" "register_lb" {
       SERVER_FQDN            = local.instance_fqdns[count.index]
       # This assumes that the first part of var.region is the encdata region
       # (country code for Exoscale).
-      SERVER_REGION          = split("-", var.region)[0]
+      SERVER_REGION = split("-", var.region)[0]
       # The encdata service doesn't allow dashes, so we replace them with
       # underscores.
       # This assumes that any zone configurations already exist in Puppet
       # hieradata.
-      SERVER_ZONE            = replace(var.region, "-", "_")
+      SERVER_ZONE = replace(var.region, "-", "_")
       # Cluster id is used as encdata stage
-      CLUSTER_ID             = var.cluster_id
+      CLUSTER_ID = var.cluster_id
     }
   }
 }
 
 resource "gitfile_checkout" "appuio_hieradata" {
-  repo   = "https://${var.hieradata_repo_user}@git.vshn.net/appuio/appuio_hieradata.git"
-  path   = "${path.root}/appuio_hieradata"
+  repo = "https://${var.hieradata_repo_user}@git.vshn.net/appuio/appuio_hieradata.git"
+  path = "${path.root}/appuio_hieradata"
 
   count = var.lb_count > 0 ? 1 : 0
 
@@ -134,12 +134,12 @@ resource "local_file" "lb_hieradata" {
       "api_key"    = var.lb_exoscale_api_key
       "api_secret" = var.lb_exoscale_api_secret
       "nodes"      = local.instance_fqdns
-      "backends"   = {
+      "backends" = {
         "api"    = exoscale_domain_record.etcd[*].hostname,
         "router" = module.infra.ip_address[*],
       }
       "bootstrap_node" = var.bootstrap_count > 0 ? module.bootstrap.ip_address[0] : ""
-    })
+  })
 
   filename             = "${path.cwd}/appuio_hieradata/lbaas/${var.cluster_id}.yaml"
   file_permission      = "0644"
@@ -150,7 +150,7 @@ resource "local_file" "lb_hieradata" {
   ]
 
   provisioner "local-exec" {
-    command     = "${path.module}/files/commit-hieradata.sh ${var.cluster_id}"
+    command = "${path.module}/files/commit-hieradata.sh ${var.cluster_id}"
   }
 }
 
@@ -193,17 +193,17 @@ resource "exoscale_compute" "lb" {
         {
           path       = "/run/tmp/ec2_userdata_override.yaml"
           "encoding" = "b64"
-          "content"  = base64encode(yamlencode({
-              "ec2_userdata" = format("#cloud-config\n%s", yamlencode(merge(
-                local.common_user_data,
-                {
-                  "fqdn"             = local.instance_fqdns[count.index],
-                  "hostname"         = random_id.lb[count.index].hex,
-                  "manage_etc_hosts" = true,
-                  "write_files"      = local.common_write_files,
-                }
-              )))
-            }))
+          "content" = base64encode(yamlencode({
+            "ec2_userdata" = format("#cloud-config\n%s", yamlencode(merge(
+              local.common_user_data,
+              {
+                "fqdn"             = local.instance_fqdns[count.index],
+                "hostname"         = random_id.lb[count.index].hex,
+                "manage_etc_hosts" = true,
+                "write_files"      = local.common_write_files,
+              }
+            )))
+          }))
         }
       ])
     }
