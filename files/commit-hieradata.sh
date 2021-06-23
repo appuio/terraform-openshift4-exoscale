@@ -1,6 +1,7 @@
 #!/bin/sh
 
 readonly cluster_id=$1
+readonly branch="origin/tf/lbaas/${cluster_id}"
 
 cd appuio_hieradata || exit 1
 
@@ -13,21 +14,21 @@ amend=0
 # 2. checkout as new branch
 # 3. checkout existing local branch
 # For existing local branch, amend existing commit
-if ! git checkout -t origin/tf/lbaas/${cluster_id}; then
-  if ! git checkout -b tf/lbaas/${cluster_id}; then
-    git checkout tf/lbaas/${cluster_id}
+if ! git checkout -t "${branch}"; then
+  if ! git checkout -b "${branch}"; then
+    git checkout "${branch}"
     amend=1
   fi
 fi
 
-git add lbaas/${cluster_id}.yaml
+git add "lbaas/${cluster_id}.yaml"
 
 status=$(git status --porcelain)
 echo "'${status}'"
 
 commit_message="Update LBaaS hieradata for ${cluster_id}"
 push=1
-if [ "${status}"  == "M  lbaas/${cluster_id}.yaml" ]; then
+if [ "${status}"  = "M  lbaas/${cluster_id}.yaml" ]; then
   if [ "$amend" -eq 1 ]; then
     git commit --amend --no-edit
   else
@@ -55,7 +56,7 @@ open_mrs=$(curl -sH "Authorization: Bearer ${HIERADATA_REPO_TOKEN}" \
   "https://git.vshn.net/api/v4/projects/368/merge_requests?state=opened&source_branch=tf/lbaas/${cluster_id}")
 if [ "${push}" -eq 0 ]; then
   mr_url="No changes, skipping push and MR creation"
-elif [ "${open_mrs}" == "[]" ]; then
+elif [ "${open_mrs}" = "[]" ]; then
   # create MR
   mr_url=$(curl -XPOST -sH "Authorization: Bearer ${HIERADATA_REPO_TOKEN}" \
     -H"Content-type: application/json" \
