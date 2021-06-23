@@ -154,6 +154,15 @@ resource "local_file" "lb_hieradata" {
   }
 }
 
+data "local_file" "hieradata_mr_url" {
+  filename = "${path.cwd}/.mr_url.txt"
+
+  depends_on = [
+    local_file.lb_hieradata
+  ]
+}
+
+
 resource "exoscale_compute" "lb" {
   count              = var.lb_count
   display_name       = local.instance_fqdns[count.index]
