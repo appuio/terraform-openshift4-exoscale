@@ -1,7 +1,7 @@
 #!/bin/sh
 
 readonly cluster_id=$1
-readonly branch="origin/tf/lbaas/${cluster_id}"
+readonly branch="tf/lbaas/${cluster_id}"
 
 cd appuio_hieradata || exit 1
 
@@ -10,11 +10,11 @@ git config user.email "${GIT_AUTHOR_EMAIL}"
 
 amend=0
 # Checkout feature branch
-# 1. try to check out as tracking branch from upstream
+# 1. try to check out as tracking branch from origin
 # 2. checkout as new branch
 # 3. checkout existing local branch
 # For existing local branch, amend existing commit
-if ! git checkout -t "${branch}"; then
+if ! git checkout -t origin/"${branch}"; then
   if ! git checkout -b "${branch}"; then
     git checkout "${branch}"
     amend=1
@@ -47,8 +47,13 @@ if [ "${push}" -eq 1 ]; then
   if [ "${amend}" -eq 1 ]; then
     push_args="--force"
   fi
-  # Push and set local branch to track upstream branch at origin
-  git push -u ${push_args} origin "${branch}"
+  # Push branch to origin and set upstream
+  git push ${push_args} origin "${branch}"
+
+  # Set branch's upstream to origin/master. Otherwise subsequent terraform
+  # runs break if the pushed branch has been merged and deleted in the mean
+  # time.
+  git branch -u origin/master
 fi
 
 # Create MR if none exists yet
