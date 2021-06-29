@@ -15,3 +15,7 @@ ${var.cluster_id}  IN  NS     ${data.exoscale_domain_record.exo_nameservers.reco
 
 EOF
 }
+
+output "hieradata_mr" {
+  value = data.local_file.hieradata_mr_url.content
+}

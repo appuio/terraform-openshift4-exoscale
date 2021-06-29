@@ -103,3 +103,11 @@ variable "lb_exoscale_api_secret" {
 variable "bootstrap_bucket" {
   type = string
 }
+
+variable "hieradata_repo_user" {
+  type = string
+}
+
+variable "control_vshn_net_token" {
+  type = string
+}
