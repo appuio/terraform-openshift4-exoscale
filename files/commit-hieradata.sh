@@ -8,7 +8,6 @@ cd appuio_hieradata || exit 1
 git config user.name "${GIT_AUTHOR_NAME}"
 git config user.email "${GIT_AUTHOR_EMAIL}"
 
-amend=0
 # Checkout feature branch
 # 1. try to check out as tracking branch from origin
 # 2. checkout as new branch
@@ -17,7 +16,6 @@ amend=0
 if ! git checkout -t origin/"${branch}"; then
   if ! git checkout -b "${branch}"; then
     git checkout "${branch}"
-    amend=1
   fi
 fi
 
@@ -29,11 +27,7 @@ echo "'${status}'"
 commit_message="Update LBaaS hieradata for ${cluster_id}"
 push=1
 if [ "${status}"  = "M  lbaas/${cluster_id}.yaml" ]; then
-  if [ "$amend" -eq 1 ]; then
-    git commit --amend --no-edit
-  else
-    git commit -m"${commit_message}"
-  fi
+  git commit -m"${commit_message}"
 elif [ "${status}" != "" ]; then
   # assume new hieradata
   commit_message="Create LBaaS hieradata for ${cluster_id}"
@@ -43,12 +37,8 @@ else
 fi
 
 if [ "${push}" -eq 1 ]; then
-  push_args=
-  if [ "${amend}" -eq 1 ]; then
-    push_args="--force"
-  fi
   # Push branch to origin and set upstream
-  git push ${push_args} origin "${branch}"
+  git push origin "${branch}"
 
   # Set branch's upstream to origin/master. Otherwise subsequent terraform
   # runs break if the pushed branch has been merged and deleted in the mean
