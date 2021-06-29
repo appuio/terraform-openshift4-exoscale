@@ -12,7 +12,7 @@ The Terraform module in this repository provisions all the infrastructure which 
 
 The module manages the VMs (including their Ignition or cloud-init config), DNS zone and records, security groups, and floating IPs for a highly-available OpenShift 4 cluster.
 
-By default, the module will provision the all VMs with public IPs (the default on Exoscale), and restricts access to the cluster VMs using Exoscale's security group mechanism.
+By default, the module will provision all the VMs with public IPs (the default on Exoscale), and restricts access to the cluster VMs using Exoscale's security group mechanism.
 Out of the box, all the cluster VMs (which use RedHat CoreOS) are reachable over SSH for debugging purposes using a SSH key which is provided during provisioning.
 
 The module expects that a suitable RHCOS VM template is available in the Exoscale organisation and region in which the cluster is getting deployed.
