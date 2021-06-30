@@ -39,12 +39,16 @@ fi
 if [ "${push}" -eq 1 ]; then
   # Push branch to origin and set upstream
   git push origin "${branch}"
-
-  # Set branch's upstream to origin/master. Otherwise subsequent terraform
-  # runs break if the pushed branch has been merged and deleted in the mean
-  # time.
-  git branch -u origin/master
 fi
+
+# Always set branch's upstream to origin/master.
+#
+# If we would set the branch's upstream to the pushed branch, subsequent
+# terraform runs break if the upstream branch has been merged or deleted.
+#
+# If we only set the upstream when pushing, subsequent terraform runs break if
+# there's been no changes in the hieradata.
+git branch -u origin/master
 
 # Create MR if none exists yet
 open_mrs=$(curl -sH "Authorization: Bearer ${HIERADATA_REPO_TOKEN}" \
