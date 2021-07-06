@@ -28,7 +28,8 @@ locals {
     "storage" : merge(
       var.use_privnet ? local.privnet_config : {},
       local.is_storage_cluster ? local.storage_cluster_config : {},
-    )
+    ),
+    "systemd" : local.is_storage_cluster ? local.storage_cluster_firstboot_unit : {},
   }))
 
   # TODO: can we do something smarter than this?
@@ -94,6 +95,25 @@ locals {
             "startMiB" : 0
           }
         ]
+      }
+    ]
+  }
+
+  storage_cluster_firstboot_unit = {
+    "units" : [
+      {
+        "name" : "exoscale-zero-storagepool.service"
+        "enabled" : true,
+        "contents" : templatefile(
+          "${path.module}/templates/zero_storagepool.service.tmpl",
+          {
+            "partition" : "/dev/vda5",
+            // Intentionally use 1GB = 1000MB when calculating the partition
+            // size in MB to avoid having `dd` fail due to the partition being
+            // slightly smaller than requested in GiB.
+            "size_mb" : var.storage_disk_size * 1000
+          }
+        )
       }
     ]
   }
