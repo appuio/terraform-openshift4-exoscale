@@ -26,7 +26,7 @@ variable "instance_size" {
 
 variable "disk_size" {
   type    = number
-  default = 120
+  default = 128
 
   validation {
     condition     = var.disk_size >= 120
