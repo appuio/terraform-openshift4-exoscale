@@ -26,7 +26,12 @@ variable "instance_size" {
 
 variable "disk_size" {
   type    = number
-  default = 128
+  default = 120
+
+  validation {
+    condition     = var.disk_size >= 120
+    error_message = "The minimum supported disk size for OCP4 is 120GB."
+  }
 }
 
 variable "template_id" {
