@@ -144,3 +144,24 @@ resource "exoscale_security_group_rules" "infra" {
     user_security_group_list = [exoscale_security_group.load_balancers.name]
   }
 }
+
+resource "exoscale_security_group" "storage" {
+  name        = "${var.cluster_id}_storage"
+  description = "${var.cluster_id} storage nodes"
+}
+
+resource "exoscale_security_group_rules" "storage" {
+  security_group = exoscale_security_group.storage.name
+
+  ingress {
+    # Ceph ingress.
+    # MONs listen on
+    #  * 3300->Ceph Messenger v2
+    #  * 6789->Ceph Messenger v1
+    # Other Ceph daemons pick a port from 6800-7300
+    description              = "Ceph host-network traffic"
+    protocol                 = "TCP"
+    ports                    = ["3300", "6789", "6800-7300"]
+    user_security_group_list = [exoscale_security_group.all_machines.name]
+  }
+}

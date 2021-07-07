@@ -49,6 +49,11 @@ variable "infra_count" {
   default = 3
 }
 
+variable "storage_count" {
+  type    = number
+  default = 3
+}
+
 variable "master_count" {
   type    = number
   default = 3
@@ -69,6 +74,11 @@ variable "infra_size" {
   default = "Extra-large"
 }
 
+variable "storage_size" {
+  type    = string
+  default = "CPU-extra-large"
+}
+
 variable "bootstrap_state" {
   type    = string
   default = "Running"
@@ -87,6 +97,21 @@ variable "worker_state" {
 variable "infra_state" {
   type    = string
   default = "Running"
+}
+
+variable "storage_state" {
+  type    = string
+  default = "Running"
+}
+
+variable "storage_disk_size" {
+  type    = number
+  default = 180
+
+  validation {
+    condition     = var.storage_disk_size >= 180
+    error_message = "The minimum supported storage disk size is 180GB."
+  }
 }
 
 variable "ignition_ca" {
