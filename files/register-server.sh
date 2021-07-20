@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eo pipefail
+
 curl -s -X POST -H "X-AccessToken: ${CONTROL_VSHN_NET_TOKEN}" \
   https://control.vshn.net/api/servers/1/appuio/ \
   -d "{
