@@ -24,15 +24,26 @@ variable "instance_size" {
   default = "Extra-large"
 }
 
-variable "disk_size" {
+variable "root_disk_size" {
   type    = number
   default = 120
 
   validation {
-    condition     = var.disk_size >= 120
-    error_message = "The minimum supported disk size for OCP4 is 120GB."
+    condition     = var.root_disk_size >= 120
+    error_message = "The minimum supported root disk size for OCP4 is 120GB."
   }
 }
+
+variable "data_disk_size" {
+  type    = number
+  default = 0
+
+  validation {
+    condition     = var.data_disk_size >= 0
+    error_message = "Creating a data disk with size < 0 is not possible."
+  }
+}
+
 
 variable "template_id" {
   type = string
@@ -90,6 +101,6 @@ variable "storage_disk_size" {
   validation {
     # minimum TBD
     condition     = var.storage_disk_size == 0 || var.storage_disk_size >= 180
-    error_message = "The minimum supported storage disk size is 180GB."
+    error_message = "The minimum supported storage cluster disk size is 180GB."
   }
 }

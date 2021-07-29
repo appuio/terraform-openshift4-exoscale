@@ -12,7 +12,6 @@ module "bootstrap" {
   template_id   = data.exoscale_compute_template.rhcos.id
   base_domain   = var.base_domain
   instance_size = "Extra-large"
-  disk_size     = 128
   node_state    = var.bootstrap_state
   ssh_key_pair  = local.ssh_key_name
 

@@ -104,12 +104,52 @@ variable "storage_state" {
   default = "Running"
 }
 
-variable "storage_disk_size" {
+variable "root_disk_size" {
+  type    = number
+  default = 120
+
+  validation {
+    condition     = var.root_disk_size >= 120
+    error_message = "The minimum supported root disk size is 120GB."
+  }
+}
+
+variable "master_disk_size" {
+  type    = number
+  default = 120
+
+  validation {
+    condition     = var.master_disk_size >= 120
+    error_message = "The minimum supported master disk size is 120GB."
+  }
+}
+
+variable "worker_disk_size" {
+  type    = number
+  default = 120
+
+  validation {
+    condition     = var.worker_disk_size >= 120
+    error_message = "The minimum supported worker disk size is 120GB."
+  }
+}
+
+variable "infra_disk_size" {
+  type    = number
+  default = 120
+
+  validation {
+    condition     = var.infra_disk_size >= 120
+    error_message = "The minimum supported infra disk size is 120GB."
+  }
+}
+
+variable "storage_cluster_disk_size" {
   type    = number
   default = 180
 
   validation {
-    condition     = var.storage_disk_size >= 180
+    condition     = var.storage_cluster_disk_size >= 180
     error_message = "The minimum supported storage disk size is 180GB."
   }
 }

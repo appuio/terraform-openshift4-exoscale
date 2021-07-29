@@ -11,7 +11,12 @@ module "storage" {
   node_state    = var.storage_state
   ssh_key_pair  = local.ssh_key_name
 
-  storage_disk_size = var.storage_disk_size
+  root_disk_size = var.root_disk_size
+
+  // We never configure a data disk for storage cluster nodes
+  // Instead, we keep the `storage_disk_size` special case to provision
+  // dedicated storage cluster nodes for now.
+  storage_disk_size = var.storage_cluster_disk_size
 
   use_privnet = var.use_privnet
   privnet_id  = var.use_privnet ? exoscale_network.clusternet.id : ""
