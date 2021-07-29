@@ -115,7 +115,7 @@ variable "storage_disk_size" {
 }
 
 variable "additional_worker_groups" {
-  type    = map(object({ size = string, count = number, disk_size = number, state = string }))
+  type    = map(object({ size = string, count = number, disk_size = optional(number), state = optional(string) }))
   default = {}
 
   validation {
@@ -123,8 +123,8 @@ variable "additional_worker_groups" {
       for k, v in var.additional_worker_groups :
       !contains(["worker", "master", "infra", "storage"], k) &&
       v.count > 0 &&
-      v.disk_size >= 120 &&
-      (v.state == "Running" || v.state == "Stopped")
+      (v.disk_size != null ? v.disk_size >= 120 : true) &&
+      (v.state == null || v.state == "Running" || v.state == "Stopped")
     ])
     // Cannot use any of the nicer string formatting options because
     // error_message validation is dumb, cf.

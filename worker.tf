@@ -39,8 +39,10 @@ module "additional_worker" {
   role          = each.key
   node_count    = each.value.count
   instance_size = each.value.size
-  node_state    = each.value.state
-  disk_size     = each.value.disk_size
+  // Default node_state to "Running" if not specified in map entry
+  node_state = each.value.state != null ? each.value.state : "Running"
+  // Default disk size to 120GB if map entry doesn't have field disk_size
+  disk_size = each.value.disk_size != null ? each.value.disk_size : 120
 
   region       = var.region
   template_id  = data.exoscale_compute_template.rhcos.id
