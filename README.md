@@ -39,6 +39,30 @@ The module provides variables to
 * specify the username for the APPUiO hieradata Git repository (see next sections for details).
 * provide an API token for control.vshn.net (see next sections for details).
 
+## Configuring additional worker groups
+
+Please note that you cannot use names "master", "infra", "worker" or "storage" for additional worker groups.
+We prohibit these names to ensure there are no collisions between the generated nodes names for different worker groups.
+
+As the example shows, attributes `disk_size` and `state` for entries in `additional_worker_groups` are optional.
+If these attributes are not given, the nodes are deployed with `disk_size = var.root_disk_size` and `state = "Running"`
+
+To configure an additional worker group named "cpu1" with 3 instances with type "CPU-huge" the following input can be given:
+
+```terraform
+# File main.tf
+module "cluster" {
+  // Remaining config for module omitted
+
+  additional_worker_groups = {
+    "cpu1": {
+      size: "CPU-huge"
+      count: 3
+    }
+  }
+}
+```
+
 ## Required credentials
 
 * An unrestricted Exoscale API key in the organisation in which the cluster should be deployed
