@@ -31,6 +31,8 @@ The module provides variables to
   Note that we don't recommend changing the count for the LBs and masters from their default values.
 * control the size of the empty partition on the storage nodes.
   This partition can be used as backing storage by in-cluster storage clusters, such as Rook-Ceph.
+* configure additional worker node groups.
+  This variable is a map from worker group names (used as node prefixes) to objects providing node instance size, node count, node disk size, and node state.
 * specify the cluster's id, Exoscale region, base domain, SSH key, RHCOS template, and Ignition API CA.
 * specify a bootstrap S3 bucket (required only to provision the boostrap node)
 * specify an Exoscale API key and secret for Floaty
