@@ -82,8 +82,9 @@ data "exoscale_compute_template" "ubuntu2004" {
 
 resource "null_resource" "register_lb" {
   triggers = {
-    # Refresh resource when script changes -- this is probaby not required for production
-    script_sha1 = filesha1("${path.module}/files/register-server.sh")
+    # Refresh resource when the script changes -- this is probaby not required for production
+    # Uncomment this trigger if you want to test changes to `files/register-server.sh`
+    # script_sha1 = filesha1("${path.module}/files/register-server.sh")
     # Refresh resource when lb fqdn changes
     lb_id = local.instance_fqdns[count.index]
   }
