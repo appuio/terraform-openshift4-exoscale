@@ -12,7 +12,6 @@ module "infra" {
   ssh_key_pair  = local.ssh_key_name
 
   root_disk_size = var.root_disk_size
-  data_disk_size = var.infra_disk_size - var.root_disk_size
 
   use_privnet = var.use_privnet
   privnet_id  = var.use_privnet ? exoscale_network.clusternet.id : ""

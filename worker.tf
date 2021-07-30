@@ -14,7 +14,7 @@ module "worker" {
   ssh_key_pair  = local.ssh_key_name
 
   root_disk_size = var.root_disk_size
-  data_disk_size = var.worker_disk_size - var.root_disk_size
+  data_disk_size = var.worker_data_disk_size
 
   use_privnet = var.use_privnet
   privnet_id  = var.use_privnet ? exoscale_network.clusternet.id : ""
@@ -47,7 +47,7 @@ module "additional_worker" {
 
   root_disk_size = var.root_disk_size
   // Default data disk size to 0 if map entry doesn't have field disk_size
-  data_disk_size = each.value.disk_size != null ? each.value.disk_size - var.root_disk_size : 0
+  data_disk_size = each.value.data_disk_size != null ? each.value.data_disk_size : 0
 
   region       = var.region
   template_id  = data.exoscale_compute_template.rhcos.id

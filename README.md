@@ -31,13 +31,13 @@ The module provides variables to
   Note that we don't recommend changing the count for the LBs and masters from their default values.
 * control the size of the root partition for all nodes.
   This value is used for all nodes and cannot be customized for individual node groups.
-* control the total disk size for master, infra, and worker nodes.
-  Terraform emits an error if the total disk size of a node group is smaller than the root disk size.
-  If the total disk size for a node group is bigger than the root disk size, the module configures the nodes to have an additional empty partition for the remaining disk.
+* control the size of the empty partition on worker nodes.
+  By default, worker nodes are provisioned without an empty partition (by defaulting the variable to 0)
+  However, users can create worker nodes with an empty partition by providing a positive value for the variable.
 * control the size of the empty partition on the storage nodes.
   This partition can be used as backing storage by in-cluster storage clusters, such as Rook-Ceph.
 * configure additional worker node groups.
-  This variable is a map from worker group names (used as node prefixes) to objects providing node instance size, node count, node disk size, and node state.
+  This variable is a map from worker group names (used as node prefixes) to objects providing node instance size, node count, node data disk size, and node state.
 * specify the cluster's id, Exoscale region, base domain, SSH key, RHCOS template, and Ignition API CA.
 * specify a bootstrap S3 bucket (required only to provision the boostrap node)
 * specify an Exoscale API key and secret for Floaty
@@ -68,7 +68,7 @@ module "cluster" {
 }
 ```
 
-To configure an additional worker group named "storage1" with 3 instances with type "Storage-huge", and 5120GB of total disk size, the following input can be given:
+To configure an additional worker group named "storage1" with 3 instances with type "Storage-huge", and 5120GB of total disk size (120GB root disk + 5000GB data disk), the following input can be given:
 
 ```terraform
 # File main.tf
@@ -79,7 +79,7 @@ module "cluster" {
     "storage1": {
       size: "Storage-huge"
       count: 3
-      disk_size: 5120
+      data_disk_size: 5000
     }
   }
 }
