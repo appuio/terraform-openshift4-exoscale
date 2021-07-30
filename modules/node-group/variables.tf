@@ -104,3 +104,9 @@ variable "storage_disk_size" {
     error_message = "The minimum supported storage cluster disk size is 180GB."
   }
 }
+
+variable "additional_affinity_group_ids" {
+  type        = list(string)
+  default     = []
+  description = "List of additional affinity group IDs to configure on all nodes"
+}

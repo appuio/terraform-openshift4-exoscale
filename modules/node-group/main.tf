@@ -142,18 +142,22 @@ resource "exoscale_affinity" "anti_affinity_group" {
 }
 
 resource "exoscale_compute" "nodes" {
-  count              = var.node_count
-  display_name       = "${random_id.node_id[count.index].hex}.${var.cluster_id}.${var.base_domain}"
-  hostname           = random_id.node_id[count.index].hex
-  key_pair           = var.ssh_key_pair
-  zone               = var.region
-  affinity_group_ids = [exoscale_affinity.anti_affinity_group[0].id]
-  template_id        = var.template_id
-  size               = var.instance_size
-  disk_size          = local.disk_size
+  count        = var.node_count
+  display_name = "${random_id.node_id[count.index].hex}.${var.cluster_id}.${var.base_domain}"
+  hostname     = random_id.node_id[count.index].hex
+  key_pair     = var.ssh_key_pair
+  zone         = var.region
+  template_id  = var.template_id
+  size         = var.instance_size
+  disk_size    = local.disk_size
+  user_data    = local.user_data
+  state        = var.node_state
+
   security_group_ids = var.security_group_ids
-  user_data          = local.user_data
-  state              = var.node_state
+  affinity_group_ids = concat(
+    [exoscale_affinity.anti_affinity_group[0].id],
+    var.additional_affinity_group_ids
+  )
 
   lifecycle {
     ignore_changes = [

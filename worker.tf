@@ -27,6 +27,8 @@ module "worker" {
     exoscale_security_group.all_machines.id,
   ]
 
+  additional_affinity_group_ids = var.additional_affinity_group_ids
+
   bootstrap_bucket = var.bootstrap_bucket
 }
 
@@ -64,6 +66,8 @@ module "additional_worker" {
   security_group_ids = [
     exoscale_security_group.all_machines.id,
   ]
+
+  additional_affinity_group_ids = var.additional_affinity_group_ids
 
   bootstrap_bucket = var.bootstrap_bucket
 }

@@ -38,6 +38,8 @@ The module provides variables to
   This partition can be used as backing storage by in-cluster storage clusters, such as Rook-Ceph.
 * configure additional worker node groups.
   This variable is a map from worker group names (used as node prefixes) to objects providing node instance size, node count, node data disk size, and node state.
+* configure additional affinity group IDs which are configured on all master, infra, storage, and worker VMs
+  This allows users to configure pre-existing affinity groups (e.g. for Exoscale dedicated VM hosts) for the cluster
 * specify the cluster's id, Exoscale region, base domain, SSH key, RHCOS template, and Ignition API CA.
 * specify a bootstrap S3 bucket (required only to provision the boostrap node)
 * specify an Exoscale API key and secret for Floaty
