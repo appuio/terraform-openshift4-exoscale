@@ -114,6 +114,25 @@ variable "storage_disk_size" {
   }
 }
 
+variable "additional_worker_groups" {
+  type    = map(object({ size = string, count = number, disk_size = optional(number), state = optional(string) }))
+  default = {}
+
+  validation {
+    condition = alltrue([
+      for k, v in var.additional_worker_groups :
+      !contains(["worker", "master", "infra", "storage"], k) &&
+      v.count > 0 &&
+      (v.disk_size != null ? v.disk_size >= 120 : true) &&
+      (v.state == null || v.state == "Running" || v.state == "Stopped")
+    ])
+    // Cannot use any of the nicer string formatting options because
+    // error_message validation is dumb, cf.
+    // https://github.com/hashicorp/terraform/issues/24123
+    error_message = "Your configuration of `additional_worker_groups` violates one of the following constraints:\n * The minimum supported disk size for workers is 120GB.\n * Additional worker group names cannot be 'worker', 'master', 'infra', or 'storage'.\n * The only valid worker states are 'Running' or 'Stopped'.\n * The worker count cannot be less than 0."
+  }
+}
+
 variable "ignition_ca" {
   type = string
 }

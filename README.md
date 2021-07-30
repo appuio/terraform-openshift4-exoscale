@@ -31,11 +31,37 @@ The module provides variables to
   Note that we don't recommend changing the count for the LBs and masters from their default values.
 * control the size of the empty partition on the storage nodes.
   This partition can be used as backing storage by in-cluster storage clusters, such as Rook-Ceph.
+* configure additional worker node groups.
+  This variable is a map from worker group names (used as node prefixes) to objects providing node instance size, node count, node disk size, and node state.
 * specify the cluster's id, Exoscale region, base domain, SSH key, RHCOS template, and Ignition API CA.
 * specify a bootstrap S3 bucket (required only to provision the boostrap node)
 * specify an Exoscale API key and secret for Floaty
 * specify the username for the APPUiO hieradata Git repository (see next sections for details).
 * provide an API token for control.vshn.net (see next sections for details).
+
+## Configuring additional worker groups
+
+Please note that you cannot use names "master", "infra", "worker" or "storage" for additional worker groups.
+We prohibit these names to ensure there are no collisions between the generated nodes names for different worker groups.
+
+As the example shows, attributes `disk_size` and `state` for entries in `additional_worker_groups` are optional.
+If these attributes are not given, the nodes are deployed with `disk_size = var.root_disk_size` and `state = "Running"`
+
+To configure an additional worker group named "cpu1" with 3 instances with type "CPU-huge" the following input can be given:
+
+```terraform
+# File main.tf
+module "cluster" {
+  // Remaining config for module omitted
+
+  additional_worker_groups = {
+    "cpu1": {
+      size: "CPU-huge"
+      count: 3
+    }
+  }
+}
+```
 
 ## Required credentials
 
