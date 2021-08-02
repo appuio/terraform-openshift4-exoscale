@@ -153,6 +153,12 @@ variable "additional_worker_groups" {
   }
 }
 
+variable "additional_affinity_group_ids" {
+  type        = list(string)
+  default     = []
+  description = "List of additional affinity group IDs to configure on all nodes"
+}
+
 variable "ignition_ca" {
   type = string
 }

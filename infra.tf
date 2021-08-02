@@ -25,6 +25,8 @@ module "infra" {
     exoscale_security_group.infra.id,
   ]
 
+  additional_affinity_group_ids = var.additional_affinity_group_ids
+
   bootstrap_bucket = var.bootstrap_bucket
 }
 
