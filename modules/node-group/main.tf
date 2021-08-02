@@ -1,4 +1,6 @@
 locals {
+  disk_size = var.root_disk_size + var.data_disk_size + var.storage_disk_size
+
   ignition_source = {
     "bootstrap" = "${trimsuffix(var.bootstrap_bucket, "/")}/bootstrap.ign"
     "master"    = "https://${var.api_int}:22623/config/master"
@@ -27,8 +29,15 @@ locals {
     },
     "storage" : merge(
       var.use_privnet ? local.privnet_config : {},
-      local.is_storage_cluster ? local.storage_cluster_config : {},
+      // We create a custom partition layout if data_disk_size or
+      // storage_disk_size are > 0. This is primarily to avoid issues with sector
+      // rounding during partitioning if the user didn't request extra disk space.
+      var.data_disk_size + var.storage_disk_size > 0 ? local.disks_config : {},
     ),
+    // For storage cluster nodes we zero the extra partition on first boot to
+    // ensure deploying the storage cluster succeeds.
+    // We don't do this for other nodes where users request extra disk space via
+    // data_disk_size.
     "systemd" : local.is_storage_cluster ? local.storage_cluster_firstboot_unit : {},
   }))
 
@@ -75,7 +84,7 @@ locals {
     ]
   }
 
-  storage_cluster_config = {
+  disks_config = {
     "disks" : [
       {
         "device" : "/dev/vda",
@@ -84,11 +93,11 @@ locals {
             "label" : "root",
             "number" : 4,
             "shouldExist" : true,
-            "sizeMiB" : var.disk_size * 1024,
+            "sizeMiB" : var.root_disk_size * 1024,
             "wipePartitionEntry" : true
           },
           {
-            "label" : "storagepool",
+            "label" : "data",
             "number" : 0,
             "shouldExist" : true,
             "sizeMiB" : 0,
@@ -141,14 +150,15 @@ resource "exoscale_compute" "nodes" {
   affinity_group_ids = [exoscale_affinity.anti_affinity_group[0].id]
   template_id        = var.template_id
   size               = var.instance_size
-  disk_size          = var.disk_size + var.storage_disk_size
+  disk_size          = local.disk_size
   security_group_ids = var.security_group_ids
   user_data          = local.user_data
   state              = var.node_state
 
   lifecycle {
     ignore_changes = [
-      template_id
+      template_id,
+      user_data
     ]
   }
 }

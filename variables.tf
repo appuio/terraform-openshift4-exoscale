@@ -104,18 +104,38 @@ variable "storage_state" {
   default = "Running"
 }
 
-variable "storage_disk_size" {
+variable "root_disk_size" {
+  type    = number
+  default = 120
+
+  validation {
+    condition     = var.root_disk_size >= 120
+    error_message = "The minimum supported root disk size is 120GB."
+  }
+}
+
+variable "worker_data_disk_size" {
+  type    = number
+  default = 0
+
+  validation {
+    condition     = var.worker_data_disk_size >= 0
+    error_message = "The worker data disk size cannot be negative."
+  }
+}
+
+variable "storage_cluster_disk_size" {
   type    = number
   default = 180
 
   validation {
-    condition     = var.storage_disk_size >= 180
-    error_message = "The minimum supported storage disk size is 180GB."
+    condition     = var.storage_cluster_disk_size >= 180
+    error_message = "The minimum supported storage cluster disk size is 180GB."
   }
 }
 
 variable "additional_worker_groups" {
-  type    = map(object({ size = string, count = number, disk_size = optional(number), state = optional(string) }))
+  type    = map(object({ size = string, count = number, data_disk_size = optional(number), state = optional(string) }))
   default = {}
 
   validation {
@@ -123,13 +143,13 @@ variable "additional_worker_groups" {
       for k, v in var.additional_worker_groups :
       !contains(["worker", "master", "infra", "storage"], k) &&
       v.count > 0 &&
-      (v.disk_size != null ? v.disk_size >= 120 : true) &&
+      (v.data_disk_size != null ? v.data_disk_size >= 0 : true) &&
       (v.state == null || v.state == "Running" || v.state == "Stopped")
     ])
     // Cannot use any of the nicer string formatting options because
     // error_message validation is dumb, cf.
     // https://github.com/hashicorp/terraform/issues/24123
-    error_message = "Your configuration of `additional_worker_groups` violates one of the following constraints:\n * The minimum supported disk size for workers is 120GB.\n * Additional worker group names cannot be 'worker', 'master', 'infra', or 'storage'.\n * The only valid worker states are 'Running' or 'Stopped'.\n * The worker count cannot be less than 0."
+    error_message = "Your configuration of `additional_worker_groups` violates one of the following constraints:\n * The worker data disk size cannot be negative.\n * Additional worker group names cannot be 'worker', 'master', 'infra', or 'storage'.\n * The only valid worker states are 'Running' or 'Stopped'.\n * The worker count cannot be less than 0."
   }
 }
 

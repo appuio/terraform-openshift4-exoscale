@@ -1,5 +1,5 @@
 // Default worker group.
-// Configured from var.worker_{count,size,state}
+// Configured from var.worker_{count,size,state,disk_size}
 module "worker" {
   source = "./modules/node-group"
 
@@ -12,6 +12,9 @@ module "worker" {
   instance_size = var.worker_size
   node_state    = var.worker_state
   ssh_key_pair  = local.ssh_key_name
+
+  root_disk_size = var.root_disk_size
+  data_disk_size = var.worker_data_disk_size
 
   use_privnet = var.use_privnet
   privnet_id  = var.use_privnet ? exoscale_network.clusternet.id : ""
@@ -41,8 +44,10 @@ module "additional_worker" {
   instance_size = each.value.size
   // Default node_state to "Running" if not specified in map entry
   node_state = each.value.state != null ? each.value.state : "Running"
-  // Default disk size to 120GB if map entry doesn't have field disk_size
-  disk_size = each.value.disk_size != null ? each.value.disk_size : 120
+
+  root_disk_size = var.root_disk_size
+  // Default data disk size to 0 if map entry doesn't have field disk_size
+  data_disk_size = each.value.data_disk_size != null ? each.value.data_disk_size : 0
 
   region       = var.region
   template_id  = data.exoscale_compute_template.rhcos.id

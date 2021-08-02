@@ -29,10 +29,15 @@ The module provides variables to
   Note that we don't officially support smaller instance sizes than the ones provided as defaults.
 * control the count of each VM type (LB, bootstrap, master, infra, storage, and worker).
   Note that we don't recommend changing the count for the LBs and masters from their default values.
+* control the size of the root partition for all nodes.
+  This value is used for all nodes and cannot be customized for individual node groups.
+* control the size of the empty partition on worker nodes.
+  By default, worker nodes are provisioned without an empty partition (by defaulting the variable to 0)
+  However, users can create worker nodes with an empty partition by providing a positive value for the variable.
 * control the size of the empty partition on the storage nodes.
   This partition can be used as backing storage by in-cluster storage clusters, such as Rook-Ceph.
 * configure additional worker node groups.
-  This variable is a map from worker group names (used as node prefixes) to objects providing node instance size, node count, node disk size, and node state.
+  This variable is a map from worker group names (used as node prefixes) to objects providing node instance size, node count, node data disk size, and node state.
 * specify the cluster's id, Exoscale region, base domain, SSH key, RHCOS template, and Ignition API CA.
 * specify a bootstrap S3 bucket (required only to provision the boostrap node)
 * specify an Exoscale API key and secret for Floaty
@@ -44,7 +49,7 @@ The module provides variables to
 Please note that you cannot use names "master", "infra", "worker" or "storage" for additional worker groups.
 We prohibit these names to ensure there are no collisions between the generated nodes names for different worker groups.
 
-As the example shows, attributes `disk_size` and `state` for entries in `additional_worker_groups` are optional.
+As the examples show, attributes `disk_size` and `state` for entries in `additional_worker_groups` are optional.
 If these attributes are not given, the nodes are deployed with `disk_size = var.root_disk_size` and `state = "Running"`
 
 To configure an additional worker group named "cpu1" with 3 instances with type "CPU-huge" the following input can be given:
@@ -58,6 +63,23 @@ module "cluster" {
     "cpu1": {
       size: "CPU-huge"
       count: 3
+    }
+  }
+}
+```
+
+To configure an additional worker group named "storage1" with 3 instances with type "Storage-huge", and 5120GB of total disk size (120GB root disk + 5000GB data disk), the following input can be given:
+
+```terraform
+# File main.tf
+module "cluster" {
+  // Remaining config for module omitted
+
+  additional_worker_groups = {
+    "storage1": {
+      size: "Storage-huge"
+      count: 3
+      data_disk_size: 5000
     }
   }
 }
