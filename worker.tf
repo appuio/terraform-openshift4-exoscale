@@ -68,7 +68,7 @@ module "additional_worker" {
   ]
 
   additional_affinity_group_ids = concat(
-    each.affinity_group_ids,
+    each.value.affinity_group_ids != null ? each.value.affinity_group_ids : [],
     var.additional_affinity_group_ids
   )
 
