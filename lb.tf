@@ -151,7 +151,7 @@ resource "local_file" "lb_hieradata" {
   ]
 
   provisioner "local-exec" {
-    command = "${path.module}/files/commit-hieradata.sh ${var.cluster_id}"
+    command = "${path.module}/files/commit-hieradata.sh ${var.cluster_id} ${path.cwd}/.mr_url.txt"
   }
 }
 

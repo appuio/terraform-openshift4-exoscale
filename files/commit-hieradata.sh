@@ -1,6 +1,7 @@
 #!/bin/sh
 
-readonly cluster_id=$1
+readonly cluster_id="$1"
+readonly mr_url_file="$2"
 readonly branch="tf/lbaas/${cluster_id}"
 
 cd appuio_hieradata || exit 1
@@ -72,4 +73,4 @@ else
   mr_url=$(echo "${open_mrs}" | jq -r '.[0].web_url')
 fi
 
-echo "${mr_url}" > /tf/.mr_url.txt
+echo "${mr_url}" > "${mr_url_file}"
