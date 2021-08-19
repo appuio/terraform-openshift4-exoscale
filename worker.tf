@@ -67,7 +67,10 @@ module "additional_worker" {
     exoscale_security_group.all_machines.id,
   ]
 
-  additional_affinity_group_ids = var.additional_affinity_group_ids
+  additional_affinity_group_ids = concat(
+    each.value.affinity_group_ids != null ? each.value.affinity_group_ids : [],
+    var.additional_affinity_group_ids
+  )
 
   bootstrap_bucket = var.bootstrap_bucket
 }

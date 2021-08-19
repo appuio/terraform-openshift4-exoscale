@@ -51,8 +51,8 @@ The module provides variables to
 Please note that you cannot use names "master", "infra", "worker" or "storage" for additional worker groups.
 We prohibit these names to ensure there are no collisions between the generated nodes names for different worker groups.
 
-As the examples show, attributes `disk_size` and `state` for entries in `additional_worker_groups` are optional.
-If these attributes are not given, the nodes are deployed with `disk_size = var.root_disk_size` and `state = "Running"`
+As the examples show, attributes `disk_size`, `state` and `affinity_group_ids` for entries in `additional_worker_groups` are optional.
+If these attributes are not given, the nodes are deployed with `disk_size = var.root_disk_size`, `state = "Running"` and `affinity_group_ids = []`.
 
 To configure an additional worker group named "cpu1" with 3 instances with type "CPU-huge" the following input can be given:
 
