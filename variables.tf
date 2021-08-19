@@ -142,7 +142,7 @@ variable "additional_worker_groups" {
     condition = alltrue([
       for k, v in var.additional_worker_groups :
       !contains(["worker", "master", "infra", "storage"], k) &&
-      v.count > 0 &&
+      v.count >= 0 &&
       (v.data_disk_size != null ? v.data_disk_size >= 0 : true) &&
       (v.state == null || v.state == "Running" || v.state == "Stopped")
     ])
