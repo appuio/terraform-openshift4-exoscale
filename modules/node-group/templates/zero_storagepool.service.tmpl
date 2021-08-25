@@ -7,7 +7,7 @@ ConditionPathExists=/run/ostree-booted
 ConditionPathExists=/etc/ignition-machine-config-encapsulated.json
 # Use same conditions as for machine-config-daemon-firstboot.service
 After=machine-config-daemon-pull.service
-Before=crio.service crio-wipe.service
+Before=crio.service
 Before=kubelet.service
 
 [Service]
