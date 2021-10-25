@@ -12,7 +12,7 @@ terraform {
   required_providers {
     exoscale = {
       source  = "exoscale/exoscale"
-      version = "~> 0.29"
+      version = "~> 0.30"
     }
     gitfile = {
       source  = "igal-s/gitfile"
