@@ -31,9 +31,9 @@ The module provides variables to
   Note that we don't recommend changing the count for the LBs and masters from their default values.
 * control the size of the root partition for all nodes.
   This value is used for all nodes and cannot be customized for individual node groups.
-* control the size of the empty partition on worker nodes.
-  By default, worker nodes are provisioned without an empty partition (by defaulting the variable to 0)
-  However, users can create worker nodes with an empty partition by providing a positive value for the variable.
+* control the size of the empty partition on worker or infra nodes.
+  By default, worker and infra nodes are provisioned without an empty partition (by defaulting the variable to 0)
+  However, users can create worker and infra nodes with an empty partition by providing a positive value for the variable.
 * control the size of the empty partition on the storage nodes.
   This partition can be used as backing storage by in-cluster storage clusters, such as Rook-Ceph.
 * configure additional worker node groups.
