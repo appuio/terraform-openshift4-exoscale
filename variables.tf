@@ -114,6 +114,16 @@ variable "root_disk_size" {
   }
 }
 
+variable "infra_data_disk_size" {
+  type    = number
+  default = 0
+
+  validation {
+    condition     = var.infra_data_disk_size >= 0
+    error_message = "The infra data disk size cannot be negative."
+  }
+}
+
 variable "worker_data_disk_size" {
   type    = number
   default = 0
