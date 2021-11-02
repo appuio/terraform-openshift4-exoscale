@@ -140,6 +140,7 @@ resource "local_file" "lb_hieradata" {
         "router" = module.infra.ip_address[*],
       }
       "bootstrap_node" = var.bootstrap_count > 0 ? module.bootstrap.ip_address[0] : ""
+      "team"           = var.team
   })
 
   filename             = "${path.cwd}/appuio_hieradata/lbaas/${var.cluster_id}.yaml"
