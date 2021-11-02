@@ -25,3 +25,7 @@ profile_openshift4_gateway::backends:
 %{ for be in backends["router"] ~}
     - ${be}
 %{ endfor ~}
+%{ if team != "" ~}
+profile_icinga2::host::hiera_vars:
+  team: ${team}
+%{ endif ~}
