@@ -213,7 +213,8 @@ resource "exoscale_compute" "lb" {
 
   lifecycle {
     ignore_changes = [
-      template_id
+      template_id,
+      user_data,
     ]
   }
 
