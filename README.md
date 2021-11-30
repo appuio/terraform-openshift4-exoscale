@@ -40,11 +40,15 @@ The module provides variables to
   This variable is a map from worker group names (used as node prefixes) to objects providing node instance size, node count, node data disk size, and node state.
 * configure additional affinity group IDs which are configured on all master, infra, storage, and worker VMs
   This allows users to configure pre-existing affinity groups (e.g. for Exoscale dedicated VM hosts) for the cluster
-* specify the cluster's id, Exoscale region, base domain, SSH key, RHCOS template, and Ignition API CA.
+* specify the cluster's id, name (optional), Exoscale region, base domain, SSH key, RHCOS template, and Ignition API CA.
 * specify a bootstrap S3 bucket (required only to provision the boostrap node)
 * specify an Exoscale API key and secret for Floaty
 * specify the username for the APPUiO hieradata Git repository (see next sections for details).
 * provide an API token for control.vshn.net (see next sections for details).
+
+The cluster's domain is constructed from the provided base domain, cluster id and cluster name.
+If a cluster name is provided the cluster domain is set to `<cluster name>.<base domain>`.
+Otherwise the cluster domain is set to `<cluster id>.<base domain>`.
 
 ## Configuring additional worker groups
 
