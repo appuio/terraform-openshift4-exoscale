@@ -1,15 +1,16 @@
 module "storage" {
   source = "./modules/node-group"
 
-  cluster_id    = var.cluster_id
-  role          = "storage"
-  node_count    = var.storage_count
-  region        = var.region
-  template_id   = data.exoscale_compute_template.rhcos.id
-  base_domain   = var.base_domain
-  instance_size = var.storage_size
-  node_state    = var.storage_state
-  ssh_key_pair  = local.ssh_key_name
+  cluster_id     = var.cluster_id
+  cluster_domain = local.cluster_domain
+  role           = "storage"
+  node_count     = var.storage_count
+  region         = var.region
+  template_id    = data.exoscale_compute_template.rhcos.id
+  base_domain    = var.base_domain
+  instance_size  = var.storage_size
+  node_state     = var.storage_state
+  ssh_key_pair   = local.ssh_key_name
 
   root_disk_size = var.root_disk_size
 

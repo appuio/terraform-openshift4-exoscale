@@ -43,5 +43,5 @@ resource "exoscale_domain_record" "api_int" {
   name        = "api-int"
   ttl         = 60
   record_type = var.use_privnet ? "A" : "CNAME"
-  content     = var.use_privnet ? local.privnet_api : "api.${var.cluster_id}.${var.base_domain}"
+  content     = var.use_privnet ? local.privnet_api : "api.${local.cluster_domain}"
 }

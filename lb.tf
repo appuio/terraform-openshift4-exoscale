@@ -29,7 +29,7 @@ resource "random_id" "lb" {
 }
 
 locals {
-  instance_fqdns = formatlist("%s.${var.cluster_id}.${var.base_domain}", random_id.lb[*].hex)
+  instance_fqdns = formatlist("%s.${local.cluster_domain}", random_id.lb[*].hex)
 
   common_user_data = {
     "package_update"  = true,

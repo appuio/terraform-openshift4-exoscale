@@ -1,15 +1,16 @@
 module "infra" {
   source = "./modules/node-group"
 
-  cluster_id    = var.cluster_id
-  role          = "infra"
-  node_count    = var.infra_count
-  region        = var.region
-  template_id   = data.exoscale_compute_template.rhcos.id
-  base_domain   = var.base_domain
-  instance_size = var.infra_size
-  node_state    = var.infra_state
-  ssh_key_pair  = local.ssh_key_name
+  cluster_id     = var.cluster_id
+  cluster_domain = local.cluster_domain
+  role           = "infra"
+  node_count     = var.infra_count
+  region         = var.region
+  template_id    = data.exoscale_compute_template.rhcos.id
+  base_domain    = var.base_domain
+  instance_size  = var.infra_size
+  node_state     = var.infra_state
+  ssh_key_pair   = local.ssh_key_name
 
   root_disk_size = var.root_disk_size
   data_disk_size = var.infra_data_disk_size

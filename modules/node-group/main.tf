@@ -143,7 +143,7 @@ resource "exoscale_affinity" "anti_affinity_group" {
 
 resource "exoscale_compute" "nodes" {
   count        = var.node_count
-  display_name = "${random_id.node_id[count.index].hex}.${var.cluster_id}.${var.base_domain}"
+  display_name = "${random_id.node_id[count.index].hex}.${var.cluster_domain}"
   hostname     = random_id.node_id[count.index].hex
   key_pair     = var.ssh_key_pair
   zone         = var.region
