@@ -1,15 +1,16 @@
 module "master" {
   source = "./modules/node-group/"
 
-  cluster_id    = var.cluster_id
-  role          = "master"
-  node_count    = var.master_count
-  region        = var.region
-  template_id   = data.exoscale_compute_template.rhcos.id
-  base_domain   = var.base_domain
-  instance_size = "Extra-large"
-  node_state    = var.master_state
-  ssh_key_pair  = local.ssh_key_name
+  cluster_id     = var.cluster_id
+  cluster_domain = local.cluster_domain
+  role           = "master"
+  node_count     = var.master_count
+  region         = var.region
+  template_id    = data.exoscale_compute_template.rhcos.id
+  base_domain    = var.base_domain
+  instance_size  = "Extra-large"
+  node_state     = var.master_state
+  ssh_key_pair   = local.ssh_key_name
 
   root_disk_size = var.root_disk_size
 

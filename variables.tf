@@ -1,5 +1,12 @@
 variable "cluster_id" {
-  type = string
+  type        = string
+  description = "The cluster's Project Syn ID"
+}
+
+variable "cluster_name" {
+  type        = string
+  description = "The cluster's display name. If this is not set, cluster_id is used"
+  default     = ""
 }
 
 variable "region" {

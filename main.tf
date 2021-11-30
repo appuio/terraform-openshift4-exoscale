@@ -1,9 +1,11 @@
 locals {
-  master_count   = 3
-  privnet_api    = cidrhost(var.privnet_cidr, 100)
-  privnet_gw     = cidrhost(var.privnet_cidr, 1)
-  cluster_domain = "${var.cluster_id}.${var.base_domain}"
-  ssh_key_name   = var.existing_keypair != "" ? var.existing_keypair : exoscale_ssh_keypair.admin[0].name
+  master_count = 3
+  privnet_api  = cidrhost(var.privnet_cidr, 100)
+  privnet_gw   = cidrhost(var.privnet_cidr, 1)
+  ssh_key_name = var.existing_keypair != "" ? var.existing_keypair : exoscale_ssh_keypair.admin[0].name
+
+  cluster_name   = var.cluster_name != "" ? var.cluster_name : var.cluster_id
+  cluster_domain = "${local.cluster_name}.${var.base_domain}"
 }
 
 resource "exoscale_domain" "cluster" {
@@ -43,5 +45,5 @@ resource "exoscale_domain_record" "api_int" {
   name        = "api-int"
   ttl         = 60
   record_type = var.use_privnet ? "A" : "CNAME"
-  content     = var.use_privnet ? local.privnet_api : "api.${var.cluster_id}.${var.base_domain}"
+  content     = var.use_privnet ? local.privnet_api : "api.${local.cluster_domain}"
 }

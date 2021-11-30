@@ -10,6 +10,10 @@ variable "cluster_id" {
   type = string
 }
 
+variable "cluster_domain" {
+  type = string
+}
+
 variable "ssh_key_pair" {
   type    = string
   default = ""

@@ -5,15 +5,16 @@ locals {
 module "bootstrap" {
   source = "./modules/node-group/"
 
-  cluster_id    = var.cluster_id
-  role          = "bootstrap"
-  node_count    = var.bootstrap_count
-  region        = var.region
-  template_id   = data.exoscale_compute_template.rhcos.id
-  base_domain   = var.base_domain
-  instance_size = "Extra-large"
-  node_state    = var.bootstrap_state
-  ssh_key_pair  = local.ssh_key_name
+  cluster_id     = var.cluster_id
+  cluster_domain = local.cluster_domain
+  role           = "bootstrap"
+  node_count     = var.bootstrap_count
+  region         = var.region
+  template_id    = data.exoscale_compute_template.rhcos.id
+  base_domain    = var.base_domain
+  instance_size  = "Extra-large"
+  node_state     = var.bootstrap_state
+  ssh_key_pair   = local.ssh_key_name
 
   use_privnet              = var.use_privnet
   privnet_id               = var.use_privnet ? exoscale_network.clusternet.id : ""

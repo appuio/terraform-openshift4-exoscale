@@ -3,15 +3,16 @@
 module "worker" {
   source = "./modules/node-group"
 
-  cluster_id    = var.cluster_id
-  role          = "worker"
-  node_count    = var.worker_count
-  region        = var.region
-  template_id   = data.exoscale_compute_template.rhcos.id
-  base_domain   = var.base_domain
-  instance_size = var.worker_size
-  node_state    = var.worker_state
-  ssh_key_pair  = local.ssh_key_name
+  cluster_id     = var.cluster_id
+  cluster_domain = local.cluster_domain
+  role           = "worker"
+  node_count     = var.worker_count
+  region         = var.region
+  template_id    = data.exoscale_compute_template.rhcos.id
+  base_domain    = var.base_domain
+  instance_size  = var.worker_size
+  node_state     = var.worker_state
+  ssh_key_pair   = local.ssh_key_name
 
   root_disk_size = var.root_disk_size
   data_disk_size = var.worker_data_disk_size
@@ -39,7 +40,8 @@ module "additional_worker" {
 
   source = "./modules/node-group"
 
-  cluster_id = var.cluster_id
+  cluster_id     = var.cluster_id
+  cluster_domain = local.cluster_domain
 
   role          = each.key
   node_count    = each.value.count
