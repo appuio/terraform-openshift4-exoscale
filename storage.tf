@@ -20,7 +20,7 @@ module "storage" {
   storage_disk_size = var.storage_cluster_disk_size
 
   use_privnet = var.use_privnet
-  privnet_id  = var.use_privnet ? exoscale_network.clusternet.id : ""
+  privnet_id  = local.privnet_id
   privnet_gw  = local.privnet_gw
 
   api_int     = exoscale_domain_record.api_int.hostname
