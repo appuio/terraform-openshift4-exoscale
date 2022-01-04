@@ -17,5 +17,5 @@ EOF
 }
 
 output "hieradata_mr" {
-  value = data.local_file.hieradata_mr_url.content
+  value = module.lb.hieradata_mr_url
 }
