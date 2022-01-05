@@ -44,7 +44,7 @@ resource "exoscale_network" "clusternet" {
 }
 
 resource "exoscale_domain_record" "api_int" {
-  domain      = exoscale_domain.cluster.id
+  domain      = exoscale_domain.cluster.name
   name        = "api-int"
   ttl         = 60
   record_type = var.use_privnet ? "A" : "CNAME"
