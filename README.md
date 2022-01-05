@@ -18,8 +18,7 @@ Out of the box, all the cluster VMs (which use RedHat CoreOS) are reachable over
 The module expects that a suitable RHCOS VM template is available in the Exoscale organisation and region in which the cluster is getting deployed.
 
 The module also provisions a pair of load balancer VMs.
-Those VMs run Ubuntu LTS 20.04 and are managed and configured via the VSHN Puppet infrastructure.
-The LB VMs run HAproxy, keepalived, and [Floaty](https://github.com/vshn/floaty/) to provide a highly-available load balancer for the cluster.
+The module uses [vshn-lbaas-exoscale](https://github.com/appuio/terraform-modules/tree/main/modules/vshn-lbaas-exoscale) to provision the LBs.
 
 ### Module input variables
 
