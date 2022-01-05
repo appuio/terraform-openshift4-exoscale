@@ -31,15 +31,6 @@ module "master" {
   bootstrap_bucket = var.bootstrap_bucket
 }
 
-resource "exoscale_domain_record" "master_api_member" {
-  count       = var.master_state == "Running" ? var.master_count : 0
-  domain      = exoscale_domain.cluster.id
-  name        = "api-member"
-  ttl         = 60
-  record_type = "A"
-  content     = module.master.ip_address[count.index]
-}
-
 resource "exoscale_domain_record" "etcd" {
   count       = var.master_state == "Running" ? var.master_count : 0
   domain      = exoscale_domain.cluster.id
