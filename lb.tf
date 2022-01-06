@@ -21,6 +21,7 @@ module "lb" {
   lb_exoscale_api_secret = var.lb_exoscale_api_secret
   hieradata_repo_user    = var.hieradata_repo_user
   enable_proxy_protocol  = var.lb_enable_proxy_protocol
+  additional_networks    = var.additional_lb_networks
 
   cluster_security_group_names = [
     exoscale_security_group.all_machines.name
