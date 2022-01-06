@@ -15,7 +15,7 @@ module "master" {
   root_disk_size = var.root_disk_size
 
   use_privnet = var.use_privnet
-  privnet_id  = var.use_privnet ? exoscale_network.clusternet.id : ""
+  privnet_id  = local.privnet_id
   privnet_gw  = local.privnet_gw
 
   api_int     = exoscale_domain_record.api_int.hostname
@@ -29,15 +29,6 @@ module "master" {
   additional_affinity_group_ids = var.additional_affinity_group_ids
 
   bootstrap_bucket = var.bootstrap_bucket
-}
-
-resource "exoscale_domain_record" "master_api_member" {
-  count       = var.master_state == "Running" ? var.master_count : 0
-  domain      = exoscale_domain.cluster.id
-  name        = "api-member"
-  ttl         = 60
-  record_type = "A"
-  content     = module.master.ip_address[count.index]
 }
 
 resource "exoscale_domain_record" "etcd" {

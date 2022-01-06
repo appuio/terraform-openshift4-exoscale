@@ -1,7 +1,9 @@
 locals {
   master_count = 3
-  privnet_api  = cidrhost(var.privnet_cidr, 100)
-  privnet_gw   = cidrhost(var.privnet_cidr, 1)
+
+  privnet_id = var.use_privnet ? exoscale_network.clusternet[0].id : ""
+  privnet_gw = cidrhost(var.privnet_cidr, 1)
+
   ssh_key_name = var.existing_keypair != "" ? var.existing_keypair : exoscale_ssh_keypair.admin[0].name
 
   cluster_name   = var.cluster_name != "" ? var.cluster_name : var.cluster_id
@@ -32,6 +34,7 @@ resource "exoscale_ssh_keypair" "admin" {
 }
 
 resource "exoscale_network" "clusternet" {
+  count        = var.use_privnet ? 1 : 0
   zone         = var.region
   name         = "${var.cluster_id}_clusternet"
   display_text = "${var.cluster_id} private network"
@@ -41,9 +44,9 @@ resource "exoscale_network" "clusternet" {
 }
 
 resource "exoscale_domain_record" "api_int" {
-  domain      = exoscale_domain.cluster.id
+  domain      = exoscale_domain.cluster.name
   name        = "api-int"
   ttl         = 60
   record_type = var.use_privnet ? "A" : "CNAME"
-  content     = var.use_privnet ? local.privnet_api : "api.${local.cluster_domain}"
+  content     = var.use_privnet ? module.lb.internal_vip : "api.${local.cluster_domain}"
 }

@@ -72,38 +72,6 @@ resource "exoscale_security_group_rules" "all_machines" {
   }
 }
 
-resource "exoscale_security_group" "load_balancers" {
-  name        = "${var.cluster_id}_load_balancers"
-  description = "${var.cluster_id} load balancer VMs"
-}
-resource "exoscale_security_group_rules" "load_balancers" {
-  security_group = exoscale_security_group.load_balancers.name
-  ingress {
-    description = "Kubernetes API"
-    protocol    = "TCP"
-    ports       = ["6443"]
-    cidr_list   = ["0.0.0.0/0", "::/0"]
-  }
-  ingress {
-    description = "Ingress controller TCP"
-    protocol    = "TCP"
-    ports       = ["80", "443"]
-    cidr_list   = ["0.0.0.0/0", "::/0"]
-  }
-  ingress {
-    description = "Ingress controller UDP"
-    protocol    = "UDP"
-    ports       = ["80", "443"]
-    cidr_list   = ["0.0.0.0/0", "::/0"]
-  }
-  ingress {
-    description              = "Machine Config server"
-    protocol                 = "TCP"
-    ports                    = ["22623"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-}
-
 resource "exoscale_security_group" "control_plane" {
   name        = "${var.cluster_id}_control_plane"
   description = "${var.cluster_id} control plane nodes"
@@ -120,7 +88,7 @@ resource "exoscale_security_group_rules" "control_plane" {
     description              = "Machine Config server"
     protocol                 = "TCP"
     ports                    = ["22623"]
-    user_security_group_list = [exoscale_security_group.load_balancers.name]
+    user_security_group_list = [module.lb.security_group_name]
   }
 
   ingress {
@@ -141,7 +109,7 @@ resource "exoscale_security_group_rules" "infra" {
     description              = "Ingress controller TCP"
     protocol                 = "TCP"
     ports                    = ["80", "443"]
-    user_security_group_list = [exoscale_security_group.load_balancers.name]
+    user_security_group_list = [module.lb.security_group_name]
   }
 }
 
