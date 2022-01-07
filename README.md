@@ -41,6 +41,8 @@ The module provides variables to
   This allows users to configure pre-existing affinity groups (e.g. for Exoscale dedicated VM hosts) for the cluster
 * specify the cluster's id, name (optional), Exoscale region, base domain, SSH key, RHCOS template, and Ignition API CA.
 * enable PROXY protocol on the LBs for the ingress router.
+* configure additional Exoscale private networks to attach to the LBs.
+  To avoid issues with network interfaces getting assigned arbitrarily, we recommend to only configure additional private networks after the LBs have been provisioned.
 * specify a bootstrap S3 bucket (required only to provision the boostrap node)
 * specify an Exoscale API key and secret for Floaty
 * specify the username for the APPUiO hieradata Git repository (see next sections for details).

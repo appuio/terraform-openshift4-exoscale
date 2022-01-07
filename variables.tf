@@ -210,3 +210,9 @@ variable "lb_enable_proxy_protocol" {
   description = "Enable the PROXY protocol on the loadbalancers. WARNING: Connections will fail until you enable the same on the OpenShift router as well"
   default     = false
 }
+
+variable "additional_lb_networks" {
+  type        = list(string)
+  description = "List of UUIDs of additional cloudscale.ch networks to attach"
+  default     = []
+}
