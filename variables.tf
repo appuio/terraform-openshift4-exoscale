@@ -204,3 +204,9 @@ variable "team" {
   description = "Team to assign the load balancers to in Icinga. All lower case."
   default     = ""
 }
+
+variable "lb_enable_proxy_protocol" {
+  type        = bool
+  description = "Enable the PROXY protocol on the loadbalancers. WARNING: Connections will fail until you enable the same on the OpenShift router as well"
+  default     = false
+}
