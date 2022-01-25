@@ -39,6 +39,8 @@ The module provides variables to
   This variable is a map from worker group names (used as node prefixes) to objects providing node instance size, node count, node data disk size, and node state.
 * configure additional affinity group IDs which are configured on all master, infra, storage, and worker VMs
   This allows users to configure pre-existing affinity groups (e.g. for Exoscale dedicated VM hosts) for the cluster
+* configure additional security group IDs which are configured on worker VMs
+  This allows users to configure pre-existing security groups (e.g. for node ports) for the worker nodes
 * specify the cluster's id, name (optional), Exoscale region, base domain, SSH key, RHCOS template, and Ignition API CA.
 * enable PROXY protocol on the LBs for the ingress router.
 * configure additional Exoscale private networks to attach to the LBs.

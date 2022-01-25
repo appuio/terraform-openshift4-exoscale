@@ -24,9 +24,10 @@ module "worker" {
   api_int     = exoscale_domain_record.api_int.hostname
   ignition_ca = var.ignition_ca
 
-  security_group_ids = [
-    exoscale_security_group.all_machines.id,
-  ]
+  security_group_ids = concat(
+    var.additional_security_group_ids,
+    [exoscale_security_group.all_machines.id]
+  )
 
   additional_affinity_group_ids = var.additional_affinity_group_ids
 
@@ -65,9 +66,10 @@ module "additional_worker" {
   api_int     = exoscale_domain_record.api_int.hostname
   ignition_ca = var.ignition_ca
 
-  security_group_ids = [
-    exoscale_security_group.all_machines.id,
-  ]
+  security_group_ids = concat(
+    var.additional_security_group_ids,
+    [exoscale_security_group.all_machines.id]
+  )
 
   additional_affinity_group_ids = concat(
     each.value.affinity_group_ids != null ? each.value.affinity_group_ids : [],

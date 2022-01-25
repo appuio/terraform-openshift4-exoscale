@@ -176,6 +176,12 @@ variable "additional_affinity_group_ids" {
   description = "List of additional affinity group IDs to configure on all nodes"
 }
 
+variable "additional_security_group_ids" {
+  type        = list(string)
+  default     = []
+  description = "List of additional security group IDs to configure on worker nodes"
+}
+
 variable "ignition_ca" {
   type = string
 }
