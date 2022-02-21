@@ -1,5 +1,5 @@
 module "lb" {
-  source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=v2.3.0"
+  source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=v2.4.0"
 
   exoscale_domain_name = exoscale_domain.cluster.name
   cluster_network = {
