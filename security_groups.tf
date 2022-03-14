@@ -37,6 +37,44 @@ resource "exoscale_security_group_rules" "all_machines" {
     ports                    = ["4789", "6081"]
     user_security_group_list = [exoscale_security_group.all_machines.name]
   }
+
+  ingress {
+    description              = "Cilium VXLAN"
+    protocol                 = "UDP"
+    ports                    = ["8472"]
+    user_security_group_list = [exoscale_security_group.all_machines.name]
+  }
+  ingress {
+    description              = "Cilium health checks"
+    protocol                 = "TCP"
+    ports                    = ["4240"]
+    user_security_group_list = [exoscale_security_group.all_machines.name]
+  }
+  ingress {
+    description              = "Cilium Hubble Server"
+    protocol                 = "TCP"
+    ports                    = ["4244"]
+    user_security_group_list = [exoscale_security_group.all_machines.name]
+  }
+  ingress {
+    description              = "Cilium Hubble Relay"
+    protocol                 = "TCP"
+    ports                    = ["4245"]
+    user_security_group_list = [exoscale_security_group.all_machines.name]
+  }
+  ingress {
+    description              = "Cilium Operator Prometheus metrics"
+    protocol                 = "TCP"
+    ports                    = ["6942"]
+    user_security_group_list = [exoscale_security_group.all_machines.name]
+  }
+  ingress {
+    description              = "Cilium Hubble Enterprise metrics"
+    protocol                 = "TCP"
+    ports                    = ["2112"]
+    user_security_group_list = [exoscale_security_group.all_machines.name]
+  }
+
   ingress {
     description              = "Host level services, including the node exporter on ports 9100-9101"
     protocol                 = "UDP"
