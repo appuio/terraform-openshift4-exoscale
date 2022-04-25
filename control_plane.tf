@@ -39,13 +39,3 @@ resource "exoscale_domain_record" "etcd" {
   record_type = "A"
   content     = module.master.ip_address[count.index]
 }
-
-resource "exoscale_domain_record" "etcd_srv" {
-  count       = var.master_state == "Running" ? var.master_count : 0
-  domain      = exoscale_domain.cluster.id
-  name        = "_etcd-server-ssl._tcp"
-  ttl         = 60
-  record_type = "SRV"
-  prio        = 0
-  content     = "10 2380 ${exoscale_domain_record.etcd[count.index].hostname}"
-}
