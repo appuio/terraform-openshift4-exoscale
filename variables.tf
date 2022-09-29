@@ -219,6 +219,6 @@ variable "lb_enable_proxy_protocol" {
 
 variable "additional_lb_networks" {
   type        = list(string)
-  description = "List of UUIDs of additional cloudscale.ch networks to attach"
+  description = "List of UUIDs of additional Exoscale private networks to attach"
   default     = []
 }
