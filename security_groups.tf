@@ -3,111 +3,88 @@ resource "exoscale_security_group" "all_machines" {
   name        = "${var.cluster_id}_all_machines"
   description = "${var.cluster_id} all machines"
 }
-resource "exoscale_security_group_rules" "all_machines" {
-  security_group = exoscale_security_group.all_machines.name
-
-  ingress {
-    description              = "Ingress Router metrics"
-    protocol                 = "TCP"
-    ports                    = ["1936"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-  ingress {
-    description              = "Host level services, including the node exporter on ports 9100-9101 and the Cluster Version Operator on port 9099"
-    protocol                 = "TCP"
-    ports                    = ["9000-9999"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-  ingress {
-    description              = "The default ports that Kubernetes reserves"
-    protocol                 = "TCP"
-    ports                    = ["10250-10259"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-  ingress {
-    description              = "openshift-sdn"
-    protocol                 = "TCP"
-    ports                    = ["10256"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
+resource "exoscale_security_group_rule" "all_machines_tcp" {
+  for_each = {
+    "Ingress Router metrics"                                                                                            = "1936,1936",
+    "Host level services, including the node exporter on ports 9100-9101 and the Cluster Version Operator on port 9099" = "9000,9999",
+    "The default ports that Kubernetes reserves, including the openshift-sdn port"                                      = "10250,10259",
+    "Cilium health checks"                                                                                              = "4240,4240",
+    "Cilium Hubble Server"                                                                                              = "4244,4244",
+    "Cilium Hubble Relay"                                                                                               = "4245,4245",
+    "Cilium Operator Prometheus metrics"                                                                                = "6942,6942",
+    "Cilium Hubble Enterprise metrics"                                                                                  = "2112,2112",
+    "Kubernetes NodePort TCP"                                                                                           = "30000,32767",
   }
 
-  ingress {
-    description              = "VXLAN and GENEVE"
-    protocol                 = "UDP"
-    ports                    = ["4789", "6081"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
+  security_group_id = exoscale_security_group.all_machines.id
+
+  type       = "INGRESS"
+  protocol   = "TCP"
+  start_port = split(",", each.value)[0]
+  end_port   = split(",", each.value)[1]
+
+  # This generates descriptions which match the descriptions used in module
+  # version v2.4.0 and earlier. Please note that changing the description
+  # recreates the rule.
+  description = startswith(each.key, "The default ports that Kubernetes reserves") ? "The default ports that Kubernetes reserves" : each.key
+
+  user_security_group_id = exoscale_security_group.all_machines.id
+}
+
+resource "exoscale_security_group_rule" "all_machines_udp" {
+  for_each = {
+    "openshift-sdn/OVNKubernetes VXLAN"                                   = "4789,4789",
+    "openshift-sdn/OVNKubernetes GENEVE"                                  = "6081,6081",
+    "Cilium VXLAN"                                                        = "8472,8472",
+    "Host level services, including the node exporter on ports 9100-9101" = "9000,9999",
+    "Kubernetes NodePort UDP"                                             = "30000,32767",
   }
 
-  ingress {
-    description              = "Cilium VXLAN"
-    protocol                 = "UDP"
-    ports                    = ["8472"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-  ingress {
-    description              = "Cilium health checks"
-    protocol                 = "TCP"
-    ports                    = ["4240"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-  ingress {
-    description              = "Cilium Hubble Server"
-    protocol                 = "TCP"
-    ports                    = ["4244"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-  ingress {
-    description              = "Cilium Hubble Relay"
-    protocol                 = "TCP"
-    ports                    = ["4245"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-  ingress {
-    description              = "Cilium Operator Prometheus metrics"
-    protocol                 = "TCP"
-    ports                    = ["6942"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-  ingress {
-    description              = "Cilium Hubble Enterprise metrics"
-    protocol                 = "TCP"
-    ports                    = ["2112"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
+  security_group_id = exoscale_security_group.all_machines.id
 
-  ingress {
-    description              = "Host level services, including the node exporter on ports 9100-9101"
-    protocol                 = "UDP"
-    ports                    = ["9000-9999"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
+  type       = "INGRESS"
+  protocol   = "UDP"
+  start_port = split(",", each.value)[0]
+  end_port   = split(",", each.value)[1]
 
-  ingress {
-    description              = "Kubernetes NodePort TCP"
-    protocol                 = "TCP"
-    ports                    = ["30000-32767"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-  ingress {
-    description              = "Kubernetes NodePort UDP"
-    protocol                 = "UDP"
-    ports                    = ["30000-32767"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
+  # This generates descriptions which match the descriptions used in module
+  # version v2.4.0 and earlier. Please note that changing the description
+  # recreates the rule.
+  description = startswith(each.key, "openshift-sdn/OVNKubernetes") ? "VXLAN and GENEVE" : each.key
 
-  ingress {
-    description = "ICMP Ping"
-    protocol    = "ICMP"
-    icmp_type   = 8
-    cidr_list   = ["0.0.0.0/0"]
-  }
-  # TODO: Keep or jump via LBs?
-  ingress {
-    description = "SSH Access"
-    protocol    = "TCP"
-    ports       = ["22"]
-    cidr_list   = ["0.0.0.0/0", "::/0"]
-  }
+  user_security_group_id = exoscale_security_group.all_machines.id
+}
+
+resource "exoscale_security_group_rule" "all_machines_icmp" {
+  security_group_id = exoscale_security_group.all_machines.id
+
+  description = "ICMP Ping"
+  type        = "INGRESS"
+  protocol    = "ICMP"
+  icmp_type   = 8
+  cidr        = "0.0.0.0/0"
+}
+
+resource "exoscale_security_group_rule" "all_machines_ssh_v4" {
+  security_group_id = exoscale_security_group.all_machines.id
+
+  description = "SSH Access"
+  type        = "INGRESS"
+  protocol    = "TCP"
+  start_port  = "22"
+  end_port    = "22"
+  cidr        = "0.0.0.0/0"
+}
+
+resource "exoscale_security_group_rule" "all_machines_ssh_v6" {
+  security_group_id = exoscale_security_group.all_machines.id
+
+  description = "SSH Access"
+  type        = "INGRESS"
+  protocol    = "TCP"
+  start_port  = "22"
+  end_port    = "22"
+  cidr        = "::/0"
 }
 
 resource "exoscale_security_group" "control_plane" {
