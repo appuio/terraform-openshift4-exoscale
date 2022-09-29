@@ -134,14 +134,21 @@ resource "exoscale_security_group" "infra" {
   name        = "${var.cluster_id}_infra"
   description = "${var.cluster_id} infra nodes"
 }
-resource "exoscale_security_group_rules" "infra" {
-  security_group = exoscale_security_group.infra.name
-  ingress {
-    description              = "Ingress controller TCP"
-    protocol                 = "TCP"
-    ports                    = ["80", "443"]
-    user_security_group_list = [module.lb.security_group_name]
+resource "exoscale_security_group_rule" "infra" {
+  for_each = {
+    HTTP  = "80"
+    HTTPS = "443"
   }
+
+  security_group_id = exoscale_security_group.infra.id
+
+  type        = "INGRESS"
+  description = "Ingress controller TCP"
+  protocol    = "TCP"
+  start_port  = each.value
+  end_port    = each.value
+
+  user_security_group_id = data.exoscale_security_group.lb.id
 }
 
 resource "exoscale_security_group" "storage" {
