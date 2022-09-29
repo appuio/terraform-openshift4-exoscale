@@ -1,3 +1,6 @@
+data "exoscale_security_group" "lb" {
+  name = module.lb.security_group_name
+}
 # https://docs.openshift.com/container-platform/4.7/installing/installing_bare_metal/installing-bare-metal.html#installation-network-user-infra_installing-bare-metal
 resource "exoscale_security_group" "all_machines" {
   name        = "${var.cluster_id}_all_machines"
@@ -91,27 +94,40 @@ resource "exoscale_security_group" "control_plane" {
   name        = "${var.cluster_id}_control_plane"
   description = "${var.cluster_id} control plane nodes"
 }
-resource "exoscale_security_group_rules" "control_plane" {
-  security_group = exoscale_security_group.control_plane.name
-  ingress {
-    description              = "etcd server, peer, and metrics ports"
-    protocol                 = "TCP"
-    ports                    = ["2379-2380"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
-  ingress {
-    description              = "Machine Config server"
-    protocol                 = "TCP"
-    ports                    = ["22623"]
-    user_security_group_list = [module.lb.security_group_name]
-  }
 
-  ingress {
-    description              = "Kubernetes API"
-    protocol                 = "TCP"
-    ports                    = ["6443"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
-  }
+resource "exoscale_security_group_rule" "control_plane_etcd" {
+  security_group_id = exoscale_security_group.control_plane.id
+
+  description = "etcd server, peer, and metrics ports"
+  type        = "INGRESS"
+  protocol    = "TCP"
+  start_port  = "2379"
+  end_port    = "2380"
+
+  user_security_group_id = exoscale_security_group.all_machines.id
+}
+
+resource "exoscale_security_group_rule" "control_plane_machine_config_server" {
+  security_group_id = exoscale_security_group.control_plane.id
+
+  description = "Machine Config server"
+  type        = "INGRESS"
+  protocol    = "TCP"
+  start_port  = "22623"
+  end_port    = "22623"
+
+  user_security_group_id = data.exoscale_security_group.lb.id
+}
+resource "exoscale_security_group_rule" "control_plane_kubernetes_api" {
+  security_group_id = exoscale_security_group.control_plane.id
+
+  description = "Kubernetes API"
+  type        = "INGRESS"
+  protocol    = "TCP"
+  start_port  = "6443"
+  end_port    = "6443"
+
+  user_security_group_id = exoscale_security_group.all_machines.id
 }
 
 resource "exoscale_security_group" "infra" {
