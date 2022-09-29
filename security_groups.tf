@@ -156,18 +156,20 @@ resource "exoscale_security_group" "storage" {
   description = "${var.cluster_id} storage nodes"
 }
 
-resource "exoscale_security_group_rules" "storage" {
-  security_group = exoscale_security_group.storage.name
-
-  ingress {
-    # Ceph ingress.
-    # MONs listen on
-    #  * 3300->Ceph Messenger v2
-    #  * 6789->Ceph Messenger v1
-    # Other Ceph daemons pick a port from 6800-7300
-    description              = "Ceph host-network traffic"
-    protocol                 = "TCP"
-    ports                    = ["3300", "6789", "6800-7300"]
-    user_security_group_list = [exoscale_security_group.all_machines.name]
+resource "exoscale_security_group_rule" "storage" {
+  for_each = {
+    "Ceph Messenger v1" = "3300,3300",
+    "Ceph Messenger v2" = "6789,6789",
+    "Ceph daemons"      = "6800,7300",
   }
+
+  security_group_id = exoscale_security_group.storage.id
+
+  type        = "INGRESS"
+  protocol    = "TCP"
+  description = "Ceph host-network traffic"
+  start_port  = split(",", each.value)[0]
+  end_port    = split(",", each.value)[1]
+
+  user_security_group_id = exoscale_security_group.all_machines.id
 }
