@@ -4,7 +4,7 @@ locals {
   privnet_id = var.use_privnet ? exoscale_network.clusternet[0].id : ""
   privnet_gw = cidrhost(var.privnet_cidr, 1)
 
-  ssh_key_name = var.existing_keypair != "" ? var.existing_keypair : exoscale_ssh_keypair.admin[0].name
+  ssh_key_name = var.existing_keypair != "" ? var.existing_keypair : exoscale_ssh_key.admin[0].name
 
   cluster_name   = var.cluster_name != "" ? var.cluster_name : var.cluster_id
   cluster_domain = "${local.cluster_name}.${var.base_domain}"
@@ -27,7 +27,7 @@ data "exoscale_compute_template" "rhcos" {
   filter = "mine"
 }
 
-resource "exoscale_ssh_keypair" "admin" {
+resource "exoscale_ssh_key" "admin" {
   count      = var.existing_keypair != "" ? 0 : 1
   name       = "${var.cluster_id}-admin"
   public_key = var.ssh_key
