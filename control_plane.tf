@@ -8,7 +8,7 @@ module "master" {
   region         = var.region
   template_id    = data.exoscale_compute_template.rhcos.id
   base_domain    = var.base_domain
-  instance_size  = "Extra-large"
+  instance_type  = "standard.extra-large"
   node_state     = var.master_state
   ssh_key_pair   = local.ssh_key_name
 
@@ -32,7 +32,7 @@ module "master" {
 }
 
 resource "exoscale_domain_record" "etcd" {
-  count       = var.master_state == "Running" ? var.master_count : 0
+  count       = lower(var.master_state) == "running" ? var.master_count : 0
   domain      = exoscale_domain.cluster.id
   name        = "etcd-${count.index}"
   ttl         = 60

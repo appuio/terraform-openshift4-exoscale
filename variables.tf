@@ -71,44 +71,44 @@ variable "lb_count" {
   default = 2
 }
 
-variable "worker_size" {
+variable "worker_type" {
   type    = string
-  default = "Extra-large"
+  default = "standard.extra-large"
 }
 
-variable "infra_size" {
+variable "infra_type" {
   type    = string
-  default = "Extra-large"
+  default = "standard.extra-large"
 }
 
-variable "storage_size" {
+variable "storage_type" {
   type    = string
-  default = "CPU-extra-large"
+  default = "cpu.extra-large"
 }
 
 variable "bootstrap_state" {
   type    = string
-  default = "Running"
+  default = "running"
 }
 
 variable "master_state" {
   type    = string
-  default = "Running"
+  default = "running"
 }
 
 variable "worker_state" {
   type    = string
-  default = "Running"
+  default = "running"
 }
 
 variable "infra_state" {
   type    = string
-  default = "Running"
+  default = "running"
 }
 
 variable "storage_state" {
   type    = string
-  default = "Running"
+  default = "running"
 }
 
 variable "root_disk_size" {
@@ -152,7 +152,7 @@ variable "storage_cluster_disk_size" {
 }
 
 variable "additional_worker_groups" {
-  type    = map(object({ size = string, count = number, data_disk_size = optional(number), state = optional(string), affinity_group_ids = optional(list(string)) }))
+  type    = map(object({ type = string, count = number, data_disk_size = optional(number), state = optional(string), affinity_group_ids = optional(list(string)) }))
   default = {}
 
   validation {
@@ -161,12 +161,12 @@ variable "additional_worker_groups" {
       !contains(["worker", "master", "infra", "storage"], k) &&
       v.count >= 0 &&
       (v.data_disk_size != null ? v.data_disk_size >= 0 : true) &&
-      (v.state != null ? v.state == "Running" || v.state == "Stopped" : true)
+      (v.state != null ? lower(v.state) == "running" || lower(v.state) == "stopped" : true)
     ])
     // Cannot use any of the nicer string formatting options because
     // error_message validation is dumb, cf.
     // https://github.com/hashicorp/terraform/issues/24123
-    error_message = "Your configuration of `additional_worker_groups` violates one of the following constraints:\n * The worker data disk size cannot be negative.\n * Additional worker group names cannot be 'worker', 'master', 'infra', or 'storage'.\n * The only valid worker states are 'Running' or 'Stopped'.\n * The worker count cannot be less than 0."
+    error_message = "Your configuration of `additional_worker_groups` violates one of the following constraints:\n * The worker data disk size cannot be negative.\n * Additional worker group names cannot be 'worker', 'master', 'infra', or 'storage'.\n * The only valid worker states are 'running' or 'stopped'.\n * The worker count cannot be less than 0."
   }
 }
 
