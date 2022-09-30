@@ -8,7 +8,7 @@ module "storage" {
   region         = var.region
   template_id    = data.exoscale_compute_template.rhcos.id
   base_domain    = var.base_domain
-  instance_size  = var.storage_size
+  instance_type  = var.storage_type
   node_state     = var.storage_state
   ssh_key_pair   = local.ssh_key_name
 

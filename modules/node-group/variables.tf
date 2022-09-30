@@ -23,9 +23,9 @@ variable "region" {
   type = string
 }
 
-variable "instance_size" {
+variable "instance_type" {
   type    = string
-  default = "Extra-large"
+  default = "standard.extra-large"
 }
 
 variable "root_disk_size" {
@@ -95,7 +95,7 @@ variable "privnet_dhcp_reservation" {
 
 variable "node_state" {
   type    = string
-  default = "Running"
+  default = "running"
 }
 
 variable "storage_disk_size" {

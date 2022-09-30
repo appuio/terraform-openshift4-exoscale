@@ -10,7 +10,7 @@ module "worker" {
   region         = var.region
   template_id    = data.exoscale_compute_template.rhcos.id
   base_domain    = var.base_domain
-  instance_size  = var.worker_size
+  instance_type  = var.worker_type
   node_state     = var.worker_state
   ssh_key_pair   = local.ssh_key_name
 
@@ -46,9 +46,9 @@ module "additional_worker" {
 
   role          = each.key
   node_count    = each.value.count
-  instance_size = each.value.size
-  // Default node_state to "Running" if not specified in map entry
-  node_state = each.value.state != null ? each.value.state : "Running"
+  instance_type = each.value.type
+  // Default node_state to "running" if not specified in map entry
+  node_state = each.value.state != null ? each.value.state : "running"
 
   root_disk_size = var.root_disk_size
   // Default data disk size to 0 if map entry doesn't have field disk_size

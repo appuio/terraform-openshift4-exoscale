@@ -126,6 +126,14 @@ locals {
       }
     ]
   }
+
+  privnet_interface = var.use_privnet ? {
+    "clusternet" : {
+      network_id = var.privnet_id
+      ip_address = var.privnet_dhcp_reservation != "" ? var.privnet_dhcp_reservation : null
+    }
+    } : {
+  }
 }
 
 resource "random_id" "node_id" {
@@ -134,30 +142,39 @@ resource "random_id" "node_id" {
   byte_length = 2
 }
 
-resource "exoscale_affinity" "anti_affinity_group" {
+resource "exoscale_anti_affinity_group" "anti_affinity_group" {
   count       = var.node_count > 0 ? 1 : 0
   name        = "${var.cluster_id}_${var.role}"
   description = "${var.cluster_id} ${var.role} nodes"
-  type        = "host anti-affinity"
 }
 
-resource "exoscale_compute" "nodes" {
-  count        = var.node_count
-  display_name = "${random_id.node_id[count.index].hex}.${var.cluster_domain}"
-  hostname     = random_id.node_id[count.index].hex
-  key_pair     = var.ssh_key_pair
-  zone         = var.region
-  template_id  = var.template_id
-  size         = var.instance_size
-  disk_size    = local.disk_size
-  user_data    = local.user_data
-  state        = var.node_state
+resource "exoscale_compute_instance" "nodes" {
+  count       = var.node_count
+  name        = "${random_id.node_id[count.index].hex}.${var.cluster_domain}"
+  ssh_key     = var.ssh_key_pair
+  zone        = var.region
+  template_id = var.template_id
+  type        = var.instance_type
+  disk_size   = local.disk_size
+  user_data   = local.user_data
+
+  # Always lowercase the provided state
+  state = lower(var.node_state)
 
   security_group_ids = var.security_group_ids
-  affinity_group_ids = concat(
-    [exoscale_affinity.anti_affinity_group[0].id],
+  anti_affinity_group_ids = concat(
+    [exoscale_anti_affinity_group.anti_affinity_group[0].id],
     var.additional_affinity_group_ids
   )
+
+  dynamic "network_interface" {
+    for_each = local.privnet_interface
+
+    content {
+      network_id = network_interface.value["network_id"]
+      ip_address = network_interface.value["ip_address"]
+    }
+  }
 
   lifecycle {
     ignore_changes = [
@@ -165,11 +182,4 @@ resource "exoscale_compute" "nodes" {
       user_data
     ]
   }
-}
-
-resource "exoscale_nic" "nodes" {
-  count      = var.use_privnet ? var.node_count : 0
-  compute_id = exoscale_compute.nodes[count.index].id
-  network_id = var.privnet_id
-  ip_address = var.privnet_dhcp_reservation != "" ? var.privnet_dhcp_reservation : null
 }
