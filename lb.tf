@@ -1,5 +1,5 @@
 module "lb" {
-  source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=v3.0.0"
+  source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=v4.0.0"
 
   exoscale_domain_name = exoscale_domain.cluster.name
   cluster_network = {
@@ -14,14 +14,12 @@ module "lb" {
   control_vshn_net_token = var.control_vshn_net_token
   team                   = var.team
 
-  api_backends           = exoscale_domain_record.etcd[*].hostname
-  router_backends        = module.infra.ip_address[*]
-  bootstrap_node         = var.bootstrap_count > 0 ? module.bootstrap.ip_address[0] : ""
-  lb_exoscale_api_key    = var.lb_exoscale_api_key
-  lb_exoscale_api_secret = var.lb_exoscale_api_secret
-  hieradata_repo_user    = var.hieradata_repo_user
-  enable_proxy_protocol  = var.lb_enable_proxy_protocol
-  additional_networks    = var.additional_lb_networks
+  api_backends          = exoscale_domain_record.etcd[*].hostname
+  router_backends       = module.infra.ip_address[*]
+  bootstrap_node        = var.bootstrap_count > 0 ? module.bootstrap.ip_address[0] : ""
+  hieradata_repo_user   = var.hieradata_repo_user
+  enable_proxy_protocol = var.lb_enable_proxy_protocol
+  additional_networks   = var.additional_lb_networks
 
   cluster_security_group_names = [
     exoscale_security_group.all_machines.name
