@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.14"
+  required_version = ">= 1.3.0"
   // Use experimental feature to allow making object fields optional, cf.
   // https://www.terraform.io/docs/language/expressions/type-constraints.html#experimental-optional-object-type-attributes
   //
