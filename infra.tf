@@ -31,12 +31,3 @@ module "infra" {
 
   bootstrap_bucket = var.bootstrap_bucket
 }
-
-resource "exoscale_domain_record" "router_member" {
-  count       = var.infra_state == "Running" ? var.infra_count : 0
-  domain      = exoscale_domain.cluster.id
-  name        = "router-member"
-  ttl         = 60
-  record_type = "A"
-  content     = module.infra.ip_address[count.index]
-}
