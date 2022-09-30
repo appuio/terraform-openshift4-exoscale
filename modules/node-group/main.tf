@@ -9,7 +9,7 @@ locals {
 
   is_storage_cluster = var.storage_disk_size > 0
 
-  user_data = base64encode(jsonencode({
+  user_data = {
     "ignition" : {
       "version" : "3.1.0",
       "config" : {
@@ -39,7 +39,7 @@ locals {
     // We don't do this for other nodes where users request extra disk space via
     // data_disk_size.
     "systemd" : local.is_storage_cluster ? local.storage_cluster_firstboot_unit : {},
-  }))
+  }
 
   # TODO: can we do something smarter than this?
   dns_servers = <<-EOF
@@ -156,7 +156,27 @@ resource "exoscale_compute_instance" "nodes" {
   template_id = var.template_id
   type        = var.instance_type
   disk_size   = local.disk_size
-  user_data   = local.user_data
+  user_data = base64encode(jsonencode(
+    merge(
+      local.user_data,
+      // override /etc/hostname with short hostname, this works around the
+      // fact that we can't set a separate `name` and `display_name` for
+      // compute instances anymore.
+      {
+        "storage" : {
+          "files" : [{
+            "filesystem" : "root",
+            "path" : "/etc/hostname",
+            "mode" : 420,
+            "overwrite" : true,
+            "contents" : {
+              "source" : "data:,${random_id.node_id[count.index].hex}"
+            }
+          }]
+        }
+      }
+    )
+  ))
 
   # Always lowercase the provided state
   state = lower(var.node_state)
