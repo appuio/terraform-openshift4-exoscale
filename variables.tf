@@ -161,7 +161,7 @@ variable "additional_worker_groups" {
       !contains(["worker", "master", "infra", "storage"], k) &&
       v.count >= 0 &&
       (v.data_disk_size != null ? v.data_disk_size >= 0 : true) &&
-      (v.state == null || v.state == "Running" || v.state == "Stopped")
+      (v.state != null ? v.state == "Running" || v.state == "Stopped" : true)
     ])
     // Cannot use any of the nicer string formatting options because
     // error_message validation is dumb, cf.
