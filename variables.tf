@@ -186,13 +186,6 @@ variable "ignition_ca" {
   type = string
 }
 
-variable "lb_exoscale_api_key" {
-  type = string
-}
-variable "lb_exoscale_api_secret" {
-  type = string
-}
-
 variable "bootstrap_bucket" {
   type = string
 }
