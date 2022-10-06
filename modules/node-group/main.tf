@@ -45,7 +45,6 @@ locals {
           // fact that we can't set a separate `name` and `display_name` for
           // compute instances anymore.
           [{
-            "filesystem" : "root",
             "path" : "/etc/hostname",
             "mode" : 420,
             "overwrite" : true,
@@ -76,7 +75,6 @@ locals {
   privnet_iface = "ens4"
   privnet_config_files = [
     {
-      "filesystem" : "root",
       "path" : "/etc/sysconfig/network-scripts/ifcfg-ens3",
       "mode" : 420,
       "contents" : {
@@ -84,7 +82,6 @@ locals {
       }
     },
     {
-      "filesystem" : "root",
       "path" : "/etc/sysconfig/network-scripts/ifcfg-${local.privnet_iface}",
       "mode" : 420,
       "contents" : {
@@ -99,7 +96,6 @@ locals {
       }
     },
     {
-      "filesystem" : "root",
       "path" : "/etc/sysconfig/network-scripts/route-${local.privnet_iface}",
       "mode" : 420,
       "contents" : {
