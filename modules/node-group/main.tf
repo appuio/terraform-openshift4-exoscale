@@ -9,37 +9,62 @@ locals {
 
   is_storage_cluster = var.storage_disk_size > 0
 
-  user_data = base64encode(jsonencode({
-    "ignition" : {
-      "version" : "3.1.0",
-      "config" : {
-        "merge" : [
-          {
-            "source" : lookup(local.ignition_source, var.role, local.ignition_source["worker"])
+  // Generate instance-specific user-data based on `random_id.node_id` This
+  // allows us to construct the complete ignition config here, instead of
+  // having to work around merge() being a shallow merge in the compute
+  // instance resource.
+  user_data = [
+    for hostname in random_id.node_id[*].hex :
+    {
+      "ignition" : {
+        "version" : "3.1.0",
+        "config" : {
+          "merge" : [
+            {
+              "source" : lookup(local.ignition_source, var.role, local.ignition_source["worker"])
+            }
+          ]
+        },
+        "security" : {
+          "tls" : {
+            "certificateAuthorities" : [{
+              "source" : "data:text/plain;charset=utf-8;base64,${base64encode(var.ignition_ca)}"
+            }]
           }
-        ]
-      },
-      "security" : {
-        "tls" : {
-          "certificateAuthorities" : [{
-            "source" : "data:text/plain;charset=utf-8;base64,${base64encode(var.ignition_ca)}"
-          }]
         }
-      }
-    },
-    "storage" : merge(
-      var.use_privnet ? local.privnet_config : {},
-      // We create a custom partition layout if data_disk_size or
-      // storage_disk_size are > 0. This is primarily to avoid issues with sector
-      // rounding during partitioning if the user didn't request extra disk space.
-      var.data_disk_size + var.storage_disk_size > 0 ? local.disks_config : {},
-    ),
-    // For storage cluster nodes we zero the extra partition on first boot to
-    // ensure deploying the storage cluster succeeds.
-    // We don't do this for other nodes where users request extra disk space via
-    // data_disk_size.
-    "systemd" : local.is_storage_cluster ? local.storage_cluster_firstboot_unit : {},
-  }))
+      },
+      // NOTE: merge doesn't deep-merge args, but instead overwrites existing
+      // top-level keys with the contents of the latest argument which has a
+      // top-level key.
+      "storage" : {
+        // concatenate the private network config (if requested) with the
+        // `/etc/hostname` override.
+        "files" : concat(
+          var.use_privnet ? local.privnet_config_files : [],
+          // override /etc/hostname with short hostname, this works around the
+          // fact that we can't set a separate `name` and `display_name` for
+          // compute instances anymore.
+          [{
+            "path" : "/etc/hostname",
+            "mode" : 420,
+            "overwrite" : true,
+            "contents" : {
+              "source" : "data:,${hostname}"
+            }
+          }]
+        ),
+        // We create a custom partition layout if data_disk_size or
+        // storage_disk_size are > 0. This is primarily to avoid issues with sector
+        // rounding during partitioning if the user didn't request extra disk space.
+        "disks" : var.data_disk_size + var.storage_disk_size > 0 ? local.disks_config : [],
+      },
+      // For storage cluster nodes we zero the extra partition on first boot to
+      // ensure deploying the storage cluster succeeds.
+      // We don't do this for other nodes where users request extra disk space via
+      // data_disk_size.
+      "systemd" : local.is_storage_cluster ? local.storage_cluster_firstboot_unit : {},
+    }
+  ]
 
   # TODO: can we do something smarter than this?
   dns_servers = <<-EOF
@@ -48,65 +73,58 @@ locals {
   EOF
 
   privnet_iface = "ens4"
-  privnet_config = {
-    "files" : [
-      {
-        "filesystem" : "root",
-        "path" : "/etc/sysconfig/network-scripts/ifcfg-ens3",
-        "mode" : 420,
-        "contents" : {
-          "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile("${path.module}/templates/ifcfg.tmpl", { device = "ens3", enabled = "no", custom_dns = "" }))}"
-        }
-      },
-      {
-        "filesystem" : "root",
-        "path" : "/etc/sysconfig/network-scripts/ifcfg-${local.privnet_iface}",
-        "mode" : 420,
-        "contents" : {
-          "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile(
-            "${path.module}/templates/ifcfg.tmpl",
-            {
-              device     = local.privnet_iface
-              enabled    = "yes"
-              custom_dns = local.dns_servers
-            }
-          ))}"
-        }
-      },
-      {
-        "filesystem" : "root",
-        "path" : "/etc/sysconfig/network-scripts/route-${local.privnet_iface}",
-        "mode" : 420,
-        "contents" : {
-          "source" : "data:text/plain;charset=utf-8;base64,${base64encode("default via ${var.privnet_gw}")}"
-        }
+  privnet_config_files = [
+    {
+      "path" : "/etc/sysconfig/network-scripts/ifcfg-ens3",
+      "mode" : 420,
+      "contents" : {
+        "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile("${path.module}/templates/ifcfg.tmpl", { device = "ens3", enabled = "no", custom_dns = "" }))}"
       }
-    ]
-  }
-
-  disks_config = {
-    "disks" : [
-      {
-        "device" : "/dev/vda",
-        "partitions" : [
+    },
+    {
+      "path" : "/etc/sysconfig/network-scripts/ifcfg-${local.privnet_iface}",
+      "mode" : 420,
+      "contents" : {
+        "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile(
+          "${path.module}/templates/ifcfg.tmpl",
           {
-            "label" : "root",
-            "number" : 4,
-            "shouldExist" : true,
-            "sizeMiB" : var.root_disk_size * 1024,
-            "wipePartitionEntry" : true
-          },
-          {
-            "label" : "data",
-            "number" : 0,
-            "shouldExist" : true,
-            "sizeMiB" : 0,
-            "startMiB" : 0
+            device     = local.privnet_iface
+            enabled    = "yes"
+            custom_dns = local.dns_servers
           }
-        ]
+        ))}"
       }
-    ]
-  }
+    },
+    {
+      "path" : "/etc/sysconfig/network-scripts/route-${local.privnet_iface}",
+      "mode" : 420,
+      "contents" : {
+        "source" : "data:text/plain;charset=utf-8;base64,${base64encode("default via ${var.privnet_gw}")}"
+      }
+    }
+  ]
+
+  disks_config = [
+    {
+      "device" : "/dev/vda",
+      "partitions" : [
+        {
+          "label" : "root",
+          "number" : 4,
+          "shouldExist" : true,
+          "sizeMiB" : var.root_disk_size * 1024,
+          "wipePartitionEntry" : true
+        },
+        {
+          "label" : "data",
+          "number" : 0,
+          "shouldExist" : true,
+          "sizeMiB" : 0,
+          "startMiB" : 0
+        }
+      ]
+    }
+  ]
 
   storage_cluster_firstboot_unit = {
     "units" : [
@@ -126,6 +144,14 @@ locals {
       }
     ]
   }
+
+  privnet_interface = var.use_privnet ? {
+    "clusternet" : {
+      network_id = var.privnet_id
+      ip_address = var.privnet_dhcp_reservation != "" ? var.privnet_dhcp_reservation : null
+    }
+    } : {
+  }
 }
 
 resource "random_id" "node_id" {
@@ -134,30 +160,39 @@ resource "random_id" "node_id" {
   byte_length = 2
 }
 
-resource "exoscale_affinity" "anti_affinity_group" {
+resource "exoscale_anti_affinity_group" "anti_affinity_group" {
   count       = var.node_count > 0 ? 1 : 0
   name        = "${var.cluster_id}_${var.role}"
   description = "${var.cluster_id} ${var.role} nodes"
-  type        = "host anti-affinity"
 }
 
-resource "exoscale_compute" "nodes" {
-  count        = var.node_count
-  display_name = "${random_id.node_id[count.index].hex}.${var.cluster_domain}"
-  hostname     = random_id.node_id[count.index].hex
-  key_pair     = var.ssh_key_pair
-  zone         = var.region
-  template_id  = var.template_id
-  size         = var.instance_size
-  disk_size    = local.disk_size
-  user_data    = local.user_data
-  state        = var.node_state
+resource "exoscale_compute_instance" "nodes" {
+  count       = var.node_count
+  name        = "${random_id.node_id[count.index].hex}.${var.cluster_domain}"
+  ssh_key     = var.ssh_key_pair
+  zone        = var.region
+  template_id = var.template_id
+  type        = var.instance_type
+  disk_size   = local.disk_size
+  user_data   = base64encode(jsonencode(local.user_data[count.index]))
+
+  # Always lowercase the provided state
+  state = lower(var.node_state)
 
   security_group_ids = var.security_group_ids
-  affinity_group_ids = concat(
-    [exoscale_affinity.anti_affinity_group[0].id],
+  anti_affinity_group_ids = concat(
+    [exoscale_anti_affinity_group.anti_affinity_group[0].id],
     var.additional_affinity_group_ids
   )
+
+  dynamic "network_interface" {
+    for_each = local.privnet_interface
+
+    content {
+      network_id = network_interface.value["network_id"]
+      ip_address = network_interface.value["ip_address"]
+    }
+  }
 
   lifecycle {
     ignore_changes = [
@@ -165,11 +200,4 @@ resource "exoscale_compute" "nodes" {
       user_data
     ]
   }
-}
-
-resource "exoscale_nic" "nodes" {
-  count      = var.use_privnet ? var.node_count : 0
-  compute_id = exoscale_compute.nodes[count.index].id
-  network_id = var.privnet_id
-  ip_address = var.privnet_dhcp_reservation != "" ? var.privnet_dhcp_reservation : null
 }
