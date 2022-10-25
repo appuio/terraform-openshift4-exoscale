@@ -1,5 +1,6 @@
 data "exoscale_security_group" "lb" {
-  name = module.lb.security_group_name
+  name       = module.lb.security_group_name
+  depends_on = [module.lb]
 }
 # https://docs.openshift.com/container-platform/4.7/installing/installing_bare_metal/installing-bare-metal.html#installation-network-user-infra_installing-bare-metal
 resource "exoscale_security_group" "all_machines" {
