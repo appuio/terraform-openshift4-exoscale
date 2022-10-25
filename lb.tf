@@ -29,5 +29,6 @@ module "lb" {
 
   depends_on = [
     exoscale_domain.cluster,
+    exoscale_security_group.all_machines,
   ]
 }
