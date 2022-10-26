@@ -31,6 +31,8 @@ module "worker" {
 
   additional_affinity_group_ids = var.additional_affinity_group_ids
 
+  deploy_target_id = var.deploy_target_id
+
   bootstrap_bucket = var.bootstrap_bucket
 }
 
@@ -75,6 +77,8 @@ module "additional_worker" {
     each.value.affinity_group_ids != null ? each.value.affinity_group_ids : [],
     var.additional_affinity_group_ids
   )
+
+  deploy_target_id = var.deploy_target_id
 
   bootstrap_bucket = var.bootstrap_bucket
 }

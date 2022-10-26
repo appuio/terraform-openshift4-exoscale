@@ -185,6 +185,8 @@ resource "exoscale_compute_instance" "nodes" {
     var.additional_affinity_group_ids
   )
 
+  deploy_target_id = var.deploy_target_id
+
   dynamic "network_interface" {
     for_each = local.privnet_interface
 

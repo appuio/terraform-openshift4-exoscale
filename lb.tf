@@ -27,6 +27,8 @@ module "lb" {
 
   additional_affinity_group_ids = var.additional_affinity_group_ids
 
+  deploy_target_id = var.deploy_target_id
+
   depends_on = [
     exoscale_domain.cluster,
     exoscale_security_group.all_machines,
