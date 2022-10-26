@@ -118,5 +118,5 @@ variable "additional_affinity_group_ids" {
 variable "deploy_target_id" {
   type        = string
   default     = ""
-  description = "ID of special deployment target, eg. dedicated hypervisors"
+  description = "ID of special deployment target, e.g. dedicated hypervisors"
 }
