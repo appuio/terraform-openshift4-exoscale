@@ -1,5 +1,5 @@
 module "lb" {
-  source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=v4.0.1"
+  source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=v4.1.0"
 
   exoscale_domain_name = exoscale_domain.cluster.name
   cluster_network = {
@@ -26,6 +26,8 @@ module "lb" {
   ]
 
   additional_affinity_group_ids = var.additional_affinity_group_ids
+
+  deploy_target_id = var.deploy_target_id
 
   depends_on = [
     exoscale_domain.cluster,

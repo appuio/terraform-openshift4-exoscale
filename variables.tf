@@ -182,6 +182,12 @@ variable "additional_security_group_ids" {
   description = "List of additional security group IDs to configure on worker nodes"
 }
 
+variable "deploy_target_id" {
+  type        = string
+  default     = ""
+  description = "ID of special deployment target, e.g. dedicated hypervisors"
+}
+
 variable "ignition_ca" {
   type = string
 }

@@ -114,3 +114,9 @@ variable "additional_affinity_group_ids" {
   default     = []
   description = "List of additional affinity group IDs to configure on all nodes"
 }
+
+variable "deploy_target_id" {
+  type        = string
+  default     = ""
+  description = "ID of special deployment target, e.g. dedicated hypervisors"
+}

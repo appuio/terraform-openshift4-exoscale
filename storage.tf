@@ -33,5 +33,7 @@ module "storage" {
 
   additional_affinity_group_ids = var.additional_affinity_group_ids
 
+  deploy_target_id = var.deploy_target_id
+
   bootstrap_bucket = var.bootstrap_bucket
 }

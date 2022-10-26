@@ -48,6 +48,8 @@ The module provides variables to
 * specify a bootstrap S3 bucket (required only to provision the boostrap node)
 * specify the username for the APPUiO hieradata Git repository (see next sections for details).
 * provide an API token for control.vshn.net (see next sections for details).
+* choose a dedicated deployment target
+  This allows for using dedicated hypervisors.
 
 The cluster's domain is constructed from the provided base domain, cluster id and cluster name.
 If a cluster name is provided the cluster domain is set to `<cluster name>.<base domain>`.
