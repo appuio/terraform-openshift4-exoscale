@@ -1,7 +1,3 @@
-data "exoscale_security_group" "lb" {
-  name       = module.lb.security_group_name
-  depends_on = [module.lb]
-}
 # https://docs.openshift.com/container-platform/4.7/installing/installing_bare_metal/installing-bare-metal.html#installation-network-user-infra_installing-bare-metal
 resource "exoscale_security_group" "all_machines" {
   name        = "${var.cluster_id}_all_machines"
@@ -117,7 +113,7 @@ resource "exoscale_security_group_rule" "control_plane_machine_config_server" {
   start_port  = "22623"
   end_port    = "22623"
 
-  user_security_group_id = data.exoscale_security_group.lb.id
+  user_security_group_id = module.lb.security_group_id
 }
 resource "exoscale_security_group_rule" "control_plane_kubernetes_api" {
   security_group_id = exoscale_security_group.control_plane.id
@@ -149,7 +145,7 @@ resource "exoscale_security_group_rule" "infra" {
   start_port  = each.value
   end_port    = each.value
 
-  user_security_group_id = data.exoscale_security_group.lb.id
+  user_security_group_id = module.lb.security_group_id
 }
 
 resource "exoscale_security_group" "storage" {
