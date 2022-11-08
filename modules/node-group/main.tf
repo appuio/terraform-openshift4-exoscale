@@ -199,7 +199,8 @@ resource "exoscale_compute_instance" "nodes" {
   lifecycle {
     ignore_changes = [
       template_id,
-      user_data
+      user_data,
+      elastic_ip_ids
     ]
   }
 }
