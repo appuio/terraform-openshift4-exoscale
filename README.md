@@ -46,6 +46,7 @@ The module provides variables to
 * configure additional Exoscale private networks to attach to the LBs.
   To avoid issues with network interfaces getting assigned arbitrarily, we recommend to only configure additional private networks after the LBs have been provisioned.
 * specify a bootstrap S3 bucket (required only to provision the boostrap node)
+* specify an Exoscale API key and secret for Floaty
 * specify the username for the APPUiO hieradata Git repository (see next sections for details).
 * provide an API token for control.vshn.net (see next sections for details).
 * choose a dedicated deployment target
@@ -99,6 +100,8 @@ module "cluster" {
 ## Required credentials
 
 * An unrestricted Exoscale API key in the organisation in which the cluster should be deployed
+* An Exoscale API key for Floaty
+  * The minimum required permissions for the Floaty API key are the following "compute-legacy" operations: `addIpToNic`, `listNics`, `listResourceDetails`, `listVirtualMachines`, `queryAsyncJobResult` and `removeIpFromNic`.
 * An API token for the Servers API must be created on [control.vshn.net](https://control.vshn.net/tokens/_create/servers)
 * A project access token for the APPUiO hieradata repository must be created on [git.vshn.net](https://git.vshn.net/appuio/appuio_hieradata/-/settings/access_tokens)
   * The minimum required permissions for the project access token are `api` (to create MRs), `read_repository` (to clone the repo) and `write_repository` (to push to the repo).
