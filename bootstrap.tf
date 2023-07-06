@@ -10,7 +10,7 @@ module "bootstrap" {
   role           = "bootstrap"
   node_count     = var.bootstrap_count
   region         = var.region
-  template_id    = data.exoscale_compute_template.rhcos.id
+  template_id    = data.exoscale_template.rhcos.id
   base_domain    = var.base_domain
   instance_type  = "standard.extra-large"
   node_state     = var.bootstrap_state

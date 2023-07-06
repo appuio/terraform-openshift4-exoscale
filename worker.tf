@@ -8,7 +8,7 @@ module "worker" {
   role           = "worker"
   node_count     = var.worker_count
   region         = var.region
-  template_id    = data.exoscale_compute_template.rhcos.id
+  template_id    = data.exoscale_template.rhcos.id
   base_domain    = var.base_domain
   instance_type  = var.worker_type
   node_state     = var.worker_state
@@ -57,7 +57,7 @@ module "additional_worker" {
   data_disk_size = each.value.data_disk_size != null ? each.value.data_disk_size : 0
 
   region       = var.region
-  template_id  = data.exoscale_compute_template.rhcos.id
+  template_id  = data.exoscale_template.rhcos.id
   base_domain  = var.base_domain
   ssh_key_pair = local.ssh_key_name
 

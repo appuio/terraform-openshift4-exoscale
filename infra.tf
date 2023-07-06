@@ -6,7 +6,7 @@ module "infra" {
   role           = "infra"
   node_count     = var.infra_count
   region         = var.region
-  template_id    = data.exoscale_compute_template.rhcos.id
+  template_id    = data.exoscale_template.rhcos.id
   base_domain    = var.base_domain
   instance_type  = var.infra_type
   node_state     = var.infra_state
