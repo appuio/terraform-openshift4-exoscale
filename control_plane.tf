@@ -6,7 +6,7 @@ module "master" {
   role           = "master"
   node_count     = var.master_count
   region         = var.region
-  template_id    = data.exoscale_compute_template.rhcos.id
+  template_id    = data.exoscale_template.rhcos.id
   base_domain    = var.base_domain
   instance_type  = "standard.extra-large"
   node_state     = var.master_state

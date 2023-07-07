@@ -21,10 +21,10 @@ data "exoscale_domain_record" "exo_nameservers" {
   }
 }
 
-data "exoscale_compute_template" "rhcos" {
-  zone   = var.region
-  name   = var.rhcos_template
-  filter = "mine"
+data "exoscale_template" "rhcos" {
+  zone       = var.region
+  name       = var.rhcos_template
+  visibility = "private"
 }
 
 resource "exoscale_ssh_key" "admin" {
