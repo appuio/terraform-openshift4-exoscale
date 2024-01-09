@@ -113,11 +113,11 @@ variable "storage_state" {
 
 variable "root_disk_size" {
   type    = number
-  default = 120
+  default = 100
 
   validation {
-    condition     = var.root_disk_size >= 120
-    error_message = "The minimum supported root disk size is 120GB."
+    condition     = var.root_disk_size >= 100
+    error_message = "The minimum supported root disk size is 100GB."
   }
 }
 
