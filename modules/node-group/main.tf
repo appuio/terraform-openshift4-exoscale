@@ -200,7 +200,7 @@ resource "exoscale_compute_instance" "nodes" {
     ignore_changes = [
       template_id,
       user_data,
-      elastic_ip_ids
+      elastic_ip_ids,
     ]
   }
 }
