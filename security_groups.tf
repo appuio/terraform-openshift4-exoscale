@@ -65,26 +65,16 @@ resource "exoscale_security_group_rule" "all_machines_icmp" {
   cidr        = "0.0.0.0/0"
 }
 
-resource "exoscale_security_group_rule" "all_machines_ssh_v4" {
+resource "exoscale_security_group_rule" "all_machines_ssh" {
   security_group_id = exoscale_security_group.all_machines.id
 
-  description = "SSH Access"
+  description = "SSH Access from cluster VMs and LBs"
   type        = "INGRESS"
   protocol    = "TCP"
   start_port  = "22"
   end_port    = "22"
-  cidr        = "0.0.0.0/0"
-}
 
-resource "exoscale_security_group_rule" "all_machines_ssh_v6" {
-  security_group_id = exoscale_security_group.all_machines.id
-
-  description = "SSH Access"
-  type        = "INGRESS"
-  protocol    = "TCP"
-  start_port  = "22"
-  end_port    = "22"
-  cidr        = "::/0"
+  user_security_group_id = exoscale_security_group.all_machines.id
 }
 
 resource "exoscale_security_group" "control_plane" {
