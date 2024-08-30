@@ -8,7 +8,7 @@ module "master" {
   region         = var.region
   template_id    = data.exoscale_template.rhcos.id
   base_domain    = var.base_domain
-  instance_type  = "standard.extra-large"
+  instance_type  = var.master_type
   node_state     = var.master_state
   ssh_key_pair   = local.ssh_key_name
 
