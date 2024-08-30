@@ -86,6 +86,11 @@ variable "storage_type" {
   default = "cpu.extra-large"
 }
 
+variable "master_type" {
+  type    = string
+  default = "standard.extra-large"
+}
+
 variable "bootstrap_state" {
   type    = string
   default = "running"
