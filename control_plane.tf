@@ -26,6 +26,7 @@ module "master" {
     exoscale_security_group.control_plane.id,
   ]
 
+  affinity_group_capacity       = var.affinity_group_capacity
   additional_affinity_group_ids = var.additional_affinity_group_ids
 
   deploy_target_id = var.deploy_target_id

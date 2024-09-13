@@ -31,6 +31,7 @@ module "storage" {
     exoscale_security_group.storage.id,
   ]
 
+  affinity_group_capacity       = var.affinity_group_capacity
   additional_affinity_group_ids = var.additional_affinity_group_ids
 
   deploy_target_id = var.deploy_target_id

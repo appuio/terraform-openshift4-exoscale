@@ -29,6 +29,7 @@ module "worker" {
     [exoscale_security_group.all_machines.id]
   )
 
+  affinity_group_capacity       = var.affinity_group_capacity
   additional_affinity_group_ids = var.additional_affinity_group_ids
 
   deploy_target_id = var.deploy_target_id
@@ -73,6 +74,7 @@ module "additional_worker" {
     [exoscale_security_group.all_machines.id]
   )
 
+  affinity_group_capacity = var.affinity_group_capacity
   additional_affinity_group_ids = concat(
     each.value.affinity_group_ids != null ? each.value.affinity_group_ids : [],
     var.additional_affinity_group_ids
