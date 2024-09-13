@@ -120,3 +120,9 @@ variable "deploy_target_id" {
   default     = ""
   description = "ID of special deployment target, e.g. dedicated hypervisors"
 }
+
+variable "affinity_group_capacity" {
+  type        = number
+  default     = 0
+  description = "Capacity of the affinity group, e.g. when using dedicated hypervisors, default: 0 (unlimited)"
+}

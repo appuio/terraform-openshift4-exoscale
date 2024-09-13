@@ -1,6 +1,9 @@
 locals {
   disk_size = var.root_disk_size + var.data_disk_size + var.storage_disk_size
 
+  anti_affinity_group_capacity = var.affinity_group_capacity > 0 ? var.affinity_group_capacity : 999999
+  anti_affinity_group_count    = var.affinity_group_capacity > 0 ? ceil(var.node_count / var.affinity_group_capacity) : 1
+
   ignition_source = {
     "bootstrap" = "${trimsuffix(var.bootstrap_bucket, "/")}/bootstrap.ign"
     "master"    = "https://${var.api_int}:22623/config/master"
@@ -161,8 +164,8 @@ resource "random_id" "node_id" {
 }
 
 resource "exoscale_anti_affinity_group" "anti_affinity_group" {
-  count       = var.node_count > 0 ? 1 : 0
-  name        = "${var.cluster_id}_${var.role}"
+  count       = var.node_count != 0 ? local.anti_affinity_group_count : 0
+  name        = count.index > 0 ? "${var.cluster_id}_${var.role}_${count.index}" : "${var.cluster_id}_${var.role}"
   description = "${var.cluster_id} ${var.role} nodes"
 }
 
@@ -181,7 +184,7 @@ resource "exoscale_compute_instance" "nodes" {
 
   security_group_ids = var.security_group_ids
   anti_affinity_group_ids = concat(
-    [exoscale_anti_affinity_group.anti_affinity_group[0].id],
+    [exoscale_anti_affinity_group.anti_affinity_group[floor(count.index / local.anti_affinity_group_capacity)].id],
     var.additional_affinity_group_ids
   )
 
