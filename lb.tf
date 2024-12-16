@@ -21,9 +21,10 @@ module "lb" {
   enable_proxy_protocol = var.lb_enable_proxy_protocol
   additional_networks   = var.additional_lb_networks
 
-  cluster_security_group_ids = [
-    exoscale_security_group.all_machines.id
-  ]
+  cluster_security_group_ids = concat(
+    [exoscale_security_group.all_machines.id],
+    var.additional_lb_security_group_ids
+  )
 
   additional_affinity_group_ids = var.additional_affinity_group_ids
 
