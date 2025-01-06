@@ -232,3 +232,9 @@ variable "additional_lb_networks" {
   description = "List of UUIDs of additional Exoscale private networks to attach"
   default     = []
 }
+
+variable "additional_lb_security_group_ids" {
+  type        = list(string)
+  default     = []
+  description = "List of additional security group IDs to configure on the LBs"
+}
