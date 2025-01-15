@@ -35,6 +35,8 @@ module "worker" {
   deploy_target_id = var.deploy_target_id
 
   bootstrap_bucket = var.bootstrap_bucket
+
+  use_instancepool = var.use_instancepools
 }
 
 // Additional worker groups.
@@ -83,4 +85,6 @@ module "additional_worker" {
   deploy_target_id = var.deploy_target_id
 
   bootstrap_bucket = var.bootstrap_bucket
+
+  use_instancepool = true
 }
