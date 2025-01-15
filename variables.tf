@@ -238,3 +238,9 @@ variable "additional_lb_security_group_ids" {
   default     = []
   description = "List of additional security group IDs to configure on the LBs"
 }
+
+variable "use_instancepools" {
+  type        = bool
+  description = "Use instance pools for node groups"
+  default     = true
+}

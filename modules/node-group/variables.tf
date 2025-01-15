@@ -126,3 +126,9 @@ variable "affinity_group_capacity" {
   default     = 0
   description = "Capacity of the affinity group, e.g. when using dedicated hypervisors, default: 0 (unlimited)"
 }
+
+variable "use_instancepool" {
+  type        = bool
+  description = "Use instancepool for this node group"
+  default     = false
+}

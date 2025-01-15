@@ -33,4 +33,6 @@ module "infra" {
   deploy_target_id = var.deploy_target_id
 
   bootstrap_bucket = var.bootstrap_bucket
+
+  use_instancepool = var.use_instancepools
 }
