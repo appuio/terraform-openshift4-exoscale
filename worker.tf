@@ -26,7 +26,8 @@ module "worker" {
 
   security_group_ids = concat(
     var.additional_security_group_ids,
-    [exoscale_security_group.all_machines.id]
+    [exoscale_security_group.all_machines.id],
+    var.use_instancepools ? [exoscale_security_group.worker.id] : []
   )
 
   affinity_group_capacity       = var.affinity_group_capacity
@@ -73,7 +74,8 @@ module "additional_worker" {
 
   security_group_ids = concat(
     var.additional_security_group_ids,
-    [exoscale_security_group.all_machines.id]
+    [exoscale_security_group.all_machines.id],
+    var.use_instancepools ? [exoscale_security_group.worker.id] : []
   )
 
   affinity_group_capacity = var.affinity_group_capacity

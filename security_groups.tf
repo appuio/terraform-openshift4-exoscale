@@ -160,3 +160,22 @@ resource "exoscale_security_group_rule" "storage" {
 
   user_security_group_id = exoscale_security_group.all_machines.id
 }
+
+resource "exoscale_security_group" "worker" {
+  name        = "${var.cluster_id}_worker"
+  description = "${var.cluster_id} worker nodes"
+}
+
+resource "exoscale_security_group_rule" "worker_nodeports" {
+  for_each = toset(["TCP", "UDP"])
+
+  security_group_id = exoscale_security_group.worker.id
+
+  type        = "INGRESS"
+  protocol    = each.value
+  description = "Access to worker node ports from anywhere"
+  start_port  = 30000
+  end_port    = 32767
+
+  cidr = "0.0.0.0/0"
+}
