@@ -210,7 +210,7 @@ resource "exoscale_compute_instance" "nodes" {
 
 resource "exoscale_instance_pool" "nodes" {
   count       = var.use_instancepool ? local.anti_affinity_group_count : 0
-  name        = "${var.role}-${count.index}"
+  name        = "${var.cluster_id}_${var.role}-${count.index}"
   size        = var.node_count
   zone        = var.region
   key_pair    = var.ssh_key_pair
