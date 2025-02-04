@@ -38,5 +38,7 @@ module "storage" {
 
   bootstrap_bucket = var.bootstrap_bucket
 
-  use_instancepool = var.use_instancepools
+  # Don't use instancepool for storage nodes so that we can keep the existing
+  # day 2 operations how-tos (scaling disk etc.).
+  use_instancepool = false
 }
