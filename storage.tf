@@ -37,4 +37,8 @@ module "storage" {
   deploy_target_id = var.deploy_target_id
 
   bootstrap_bucket = var.bootstrap_bucket
+
+  # Don't use instancepool for storage nodes so that we can keep the existing
+  # day 2 operations how-tos (scaling disk etc.).
+  use_instancepool = false
 }

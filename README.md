@@ -51,6 +51,8 @@ The module provides variables to
 * provide an API token for control.vshn.net (see next sections for details).
 * choose a dedicated deployment target
   This allows for using dedicated hypervisors.
+* choose to provision Exoscale instance pools for the infra and worker nodes.
+  NOTE: we currently don't support provisioning Exoscale instance pools for the control plane and storage nodes.
 
 The cluster's domain is constructed from the provided base domain, cluster id and cluster name.
 If a cluster name is provided the cluster domain is set to `<cluster name>.<base domain>`.

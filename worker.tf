@@ -26,7 +26,8 @@ module "worker" {
 
   security_group_ids = concat(
     var.additional_security_group_ids,
-    [exoscale_security_group.all_machines.id]
+    [exoscale_security_group.all_machines.id],
+    var.use_instancepools ? [exoscale_security_group.worker.id] : []
   )
 
   affinity_group_capacity       = var.affinity_group_capacity
@@ -35,6 +36,8 @@ module "worker" {
   deploy_target_id = var.deploy_target_id
 
   bootstrap_bucket = var.bootstrap_bucket
+
+  use_instancepool = var.use_instancepools
 }
 
 // Additional worker groups.
@@ -71,7 +74,8 @@ module "additional_worker" {
 
   security_group_ids = concat(
     var.additional_security_group_ids,
-    [exoscale_security_group.all_machines.id]
+    [exoscale_security_group.all_machines.id],
+    var.use_instancepools ? [exoscale_security_group.worker.id] : []
   )
 
   affinity_group_capacity = var.affinity_group_capacity
@@ -83,4 +87,6 @@ module "additional_worker" {
   deploy_target_id = var.deploy_target_id
 
   bootstrap_bucket = var.bootstrap_bucket
+
+  use_instancepool = true
 }

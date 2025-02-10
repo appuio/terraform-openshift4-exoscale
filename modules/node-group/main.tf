@@ -17,7 +17,11 @@ locals {
   // having to work around merge() being a shallow merge in the compute
   // instance resource.
   user_data = [
-    for hostname in random_id.node_id[*].hex :
+    // NOTE(sg): we only need to patch each node's user-data to have a custom
+    // /etc/hosts for non-instancepool setups. For instancepool setups, we
+    // only need a single user-data and we don't actually use the value of
+    // `hostname`.
+    for hostname in(var.use_instancepool ? ["pool_member"] : random_id.node_id[*].hex) :
     {
       "ignition" : {
         "version" : "3.1.0",
@@ -42,7 +46,7 @@ locals {
       "storage" : {
         // concatenate the private network config (if requested) with the
         // `/etc/hostname` override.
-        "files" : concat(
+        "files" : var.use_instancepool ? [] : concat(
           var.use_privnet ? local.privnet_config_files : [],
           // override /etc/hostname with short hostname, this works around the
           // fact that we can't set a separate `name` and `display_name` for
@@ -158,7 +162,7 @@ locals {
 }
 
 resource "random_id" "node_id" {
-  count       = var.node_count
+  count       = var.use_instancepool ? 0 : var.node_count
   prefix      = "${var.role}-"
   byte_length = 2
 }
@@ -170,7 +174,7 @@ resource "exoscale_anti_affinity_group" "anti_affinity_group" {
 }
 
 resource "exoscale_compute_instance" "nodes" {
-  count       = var.node_count
+  count       = var.use_instancepool ? 0 : var.node_count
   name        = "${random_id.node_id[count.index].hex}.${var.cluster_domain}"
   ssh_key     = var.ssh_key_pair
   zone        = var.region
@@ -206,4 +210,28 @@ resource "exoscale_compute_instance" "nodes" {
       elastic_ip_ids,
     ]
   }
+}
+
+resource "exoscale_instance_pool" "nodes" {
+  count       = var.use_instancepool ? local.anti_affinity_group_count : 0
+  name        = "${var.cluster_id}_${var.role}-${count.index}"
+  size        = var.node_count
+  zone        = var.region
+  key_pair    = var.ssh_key_pair
+  template_id = var.template_id
+
+  instance_prefix = var.role
+  instance_type   = var.instance_type
+
+  disk_size = local.disk_size
+  user_data = jsonencode(local.user_data[0])
+
+  deploy_target_id = var.deploy_target_id
+
+  security_group_ids = var.security_group_ids
+
+  anti_affinity_group_ids = concat(
+    [exoscale_anti_affinity_group.anti_affinity_group[count.index].id],
+    var.additional_affinity_group_ids
+  )
 }

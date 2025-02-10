@@ -32,6 +32,11 @@ module "master" {
   deploy_target_id = var.deploy_target_id
 
   bootstrap_bucket = var.bootstrap_bucket
+
+  # Don't use instance pool for control plane nodes, since scaling them is
+  # much easier without an instance pool by just stopping/scaling/starting the
+  # same VM.
+  use_instancepool = false
 }
 
 resource "exoscale_domain_record" "etcd" {
