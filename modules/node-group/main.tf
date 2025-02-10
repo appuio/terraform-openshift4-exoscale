@@ -17,7 +17,11 @@ locals {
   // having to work around merge() being a shallow merge in the compute
   // instance resource.
   user_data = [
-    for hostname in(var.use_instancepool ? ["dummy"] : random_id.node_id[*].hex) :
+    // NOTE(sg): we only need to patch each node's user-data to have a custom
+    // /etc/hosts for non-instancepool setups. For instancepool setups, we
+    // only need a single user-data and we don't actually use the value of
+    // `hostname`.
+    for hostname in(var.use_instancepool ? ["pool_member"] : random_id.node_id[*].hex) :
     {
       "ignition" : {
         "version" : "3.1.0",
