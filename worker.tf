@@ -27,6 +27,7 @@ module "worker" {
   security_group_ids = concat(
     var.additional_security_group_ids,
     [exoscale_security_group.all_machines.id],
+    var.infra_count == 0 ? [exoscale_security_group.infra.id] : [],
     var.use_instancepools ? [exoscale_security_group.worker.id] : []
   )
 
