@@ -244,3 +244,9 @@ variable "use_instancepools" {
   description = "Use instance pools for node groups"
   default     = true
 }
+
+variable "infra_use_instancepool" {
+  type        = bool
+  description = "Use instance pool for infra nodes. Only has an effect if `use_instancepools=true`"
+  default     = false
+}
