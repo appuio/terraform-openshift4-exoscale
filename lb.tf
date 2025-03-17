@@ -15,7 +15,7 @@ module "lb" {
   team                   = var.team
 
   api_backends          = exoscale_domain_record.etcd[*].hostname
-  router_backends       = module.infra.ip_address[*]
+  router_backends       = var.infra_count > 0 ? module.infra.ip_address[*] : module.worker.ip_address[*]
   bootstrap_node        = var.bootstrap_count > 0 ? module.bootstrap.ip_address[0] : ""
   hieradata_repo_user   = var.hieradata_repo_user
   enable_proxy_protocol = var.lb_enable_proxy_protocol
