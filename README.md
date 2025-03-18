@@ -52,7 +52,9 @@ The module provides variables to
 * choose a dedicated deployment target
   This allows for using dedicated hypervisors.
 * choose to provision Exoscale instance pools for the infra and worker nodes.
-  NOTE: we currently don't support provisioning Exoscale instance pools for the control plane and storage nodes.
+  Note that we currently don't support provisioning Exoscale instance pools for the control plane and storage nodes.
+  By default, we only provision instance pools for the worker nodes.
+  If you wish to use an instance pool for the infra nodes, you need to set variable `infra_use_instancepool = true`.
 
 The cluster's domain is constructed from the provided base domain, cluster id and cluster name.
 If a cluster name is provided the cluster domain is set to `<cluster name>.<base domain>`.

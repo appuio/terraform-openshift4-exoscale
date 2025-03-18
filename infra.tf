@@ -34,5 +34,5 @@ module "infra" {
 
   bootstrap_bucket = var.bootstrap_bucket
 
-  use_instancepool = var.use_instancepools
+  use_instancepool = var.use_instancepools && var.infra_use_instancepool
 }
