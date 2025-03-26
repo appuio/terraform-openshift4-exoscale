@@ -1,5 +1,5 @@
 module "lb" {
-  source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=v6.5.0"
+  source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=v6.6.0"
 
   exoscale_domain_name = exoscale_domain.cluster.name
   cluster_network = {
@@ -13,6 +13,7 @@ module "lb" {
   lb_count               = var.lb_count
   control_vshn_net_token = var.control_vshn_net_token
   team                   = var.team
+  disk_size              = var.lb_disk_size
 
   api_backends          = exoscale_domain_record.etcd[*].hostname
   router_backends       = var.infra_count > 0 ? module.infra.ip_address[*] : module.worker.ip_address[*]

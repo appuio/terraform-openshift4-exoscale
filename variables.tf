@@ -239,6 +239,12 @@ variable "additional_lb_security_group_ids" {
   description = "List of additional security group IDs to configure on the LBs"
 }
 
+variable "lb_disk_size" {
+  type        = number
+  default     = 20
+  description = "LB VM disk size"
+}
+
 variable "use_instancepools" {
   type        = bool
   description = "Use instance pools for node groups"
