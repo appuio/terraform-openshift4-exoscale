@@ -54,6 +54,7 @@ The module provides variables to
 * choose to provision Exoscale instance pools for the infra and worker nodes.
   Note that we currently don't support provisioning Exoscale instance pools for the control plane and storage nodes.
   By default, we only provision instance pools for the worker nodes.
+  You can selectively enable or disable instance pool provisioning for additional worker groups by setting variable `use_instancepool` for the worker group.
   If you wish to use an instance pool for the infra nodes, you need to set variable `infra_use_instancepool = true`.
 
 The cluster's domain is constructed from the provided base domain, cluster id and cluster name.
