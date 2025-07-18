@@ -157,7 +157,7 @@ variable "storage_cluster_disk_size" {
 }
 
 variable "additional_worker_groups" {
-  type    = map(object({ type = string, count = number, data_disk_size = optional(number), state = optional(string), affinity_group_ids = optional(list(string)) }))
+  type    = map(object({ type = string, count = number, data_disk_size = optional(number), state = optional(string), affinity_group_ids = optional(list(string)), use_instancepool = optional(bool) }))
   default = {}
 
   validation {

@@ -89,5 +89,5 @@ module "additional_worker" {
 
   bootstrap_bucket = var.bootstrap_bucket
 
-  use_instancepool = true
+  use_instancepool = each.value.use_instancepool != null ? each.value.use_instancepool : var.use_instancepools
 }
