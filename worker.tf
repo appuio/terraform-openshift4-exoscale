@@ -61,8 +61,8 @@ module "additional_worker" {
   // Default data disk size to 0 if map entry doesn't have field disk_size
   data_disk_size = each.value.data_disk_size != null ? each.value.data_disk_size : 0
 
-  region       = var.region
-  template_id  = data.exoscale_template.rhcos.id
+  region       = each.value.region != null ? each.value.region : var.region
+  template_id  = each.value.template_id != null ? each.value.template_id : data.exoscale_template.rhcos.id
   base_domain  = var.base_domain
   ssh_key_pair = local.ssh_key_name
 
