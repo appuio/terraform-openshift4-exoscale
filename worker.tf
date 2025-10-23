@@ -39,6 +39,8 @@ module "worker" {
   bootstrap_bucket = var.bootstrap_bucket
 
   use_instancepool = var.use_instancepools
+
+  initialize_topolvm_vg = var.worker_data_disk_size > 0 && var.worker_initialize_topolvm_vg
 }
 
 // Additional worker groups.
@@ -90,4 +92,6 @@ module "additional_worker" {
   bootstrap_bucket = var.bootstrap_bucket
 
   use_instancepool = each.value.use_instancepool != null ? each.value.use_instancepool : var.use_instancepools
+
+  initialize_topolvm_vg = each.value.data_disk_size > 0 && each.value.initialize_topolvm_vg
 }

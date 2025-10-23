@@ -1,0 +1,21 @@
+[Unit]
+Description=Initialize TopoLVM volume group on first boot
+# Conditions copied from upstream machine-config-daemon-firstboot.service
+# Make sure it runs only on OSTree booted system
+ConditionPathExists=/run/ostree-booted
+# Removal of this file signals firstboot completion
+ConditionPathExists=/etc/ignition-machine-config-encapsulated.json
+# Use same conditions as for machine-config-daemon-firstboot.service
+After=machine-config-daemon-pull.service
+Before=crio.service
+Before=kubelet.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=vgcreate vgssd ${partition}
+
+[Install]
+# Copied from machine-config-daemon-firstboot.service
+WantedBy=multi-user.target
+RequiredBy=crio.service kubelet.service
