@@ -69,7 +69,7 @@ locals {
       // ensure deploying the storage cluster succeeds.
       // We don't do this for other nodes where users request extra disk space via
       // data_disk_size.
-      "systemd" : local.is_storage_cluster ? local.storage_cluster_firstboot_unit : {},
+      "systemd" : local.is_storage_cluster ? local.storage_cluster_firstboot_unit : (var.initialize_topolvm_vg ? local.topolvm_partition_firstboot_unit : {}),
     }
   ]
 
@@ -146,6 +146,21 @@ locals {
             // size in MB to avoid having `dd` fail due to the partition being
             // slightly smaller than requested in GiB.
             "size_mb" : var.storage_disk_size * 1000
+          }
+        )
+      }
+    ]
+  }
+
+  topolvm_partition_firstboot_unit = {
+    "units" : [
+      {
+        "name" : "exoscale-initialize-topolvm-vg.service"
+        "enabled" : true,
+        "contents" : templatefile(
+          "${path.module}/templates/initialize-topolvm-vg.service.tmpl",
+          {
+            "partition" : "/dev/vda5",
           }
         )
       }

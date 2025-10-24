@@ -146,6 +146,12 @@ variable "worker_data_disk_size" {
   }
 }
 
+variable "worker_initialize_topolvm_vg" {
+  type        = bool
+  description = "Whether to run `vgcreate vgssd /dev/vda5` for worker nodes. Only has an effect if `worker_data_disk_size > 0`."
+  default     = false
+}
+
 variable "storage_cluster_disk_size" {
   type    = number
   default = 180
@@ -157,7 +163,7 @@ variable "storage_cluster_disk_size" {
 }
 
 variable "additional_worker_groups" {
-  type    = map(object({ type = string, count = number, data_disk_size = optional(number), state = optional(string), affinity_group_ids = optional(list(string)), use_instancepool = optional(bool) }))
+  type    = map(object({ type = string, count = number, data_disk_size = optional(number), state = optional(string), affinity_group_ids = optional(list(string)), use_instancepool = optional(bool), initialize_topolvm_vg = optional(bool) }))
   default = {}
 
   validation {

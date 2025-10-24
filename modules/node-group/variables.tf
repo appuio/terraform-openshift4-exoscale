@@ -132,3 +132,9 @@ variable "use_instancepool" {
   description = "Use instancepool for this node group"
   default     = false
 }
+
+variable "initialize_topolvm_vg" {
+  type        = bool
+  description = "Whether to run `vgcreate vgssd /dev/vda5` on first boot for nodes in the group"
+  default     = false
+}

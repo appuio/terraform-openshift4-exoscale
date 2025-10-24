@@ -35,6 +35,9 @@ The module provides variables to
   However, users can create worker and infra nodes with an empty partition by providing a positive value for the variable.
 * control the size of the empty partition on the storage nodes.
   This partition can be used as backing storage by in-cluster storage clusters, such as Rook-Ceph.
+* control the size of the empty partition on the worker nodes.
+  This partition can be used as backing storage by in-cluster local storage providers, such as TopoLVM.
+  Optionally, the empty partition can be initialized with a LVM volume group called `vgssd`.
 * configure additional worker node groups.
   This variable is a map from worker group names (used as node prefixes) to objects providing node instance size, node count, node data disk size, and node state.
 * configure additional affinity group IDs which are configured on all master, infra, storage, and worker VMs
