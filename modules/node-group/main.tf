@@ -191,7 +191,7 @@ resource "exoscale_anti_affinity_group" "anti_affinity_group" {
 resource "exoscale_compute_instance" "nodes" {
   count       = var.use_instancepool ? 0 : var.node_count
   name        = "${random_id.node_id[count.index].hex}.${var.cluster_domain}"
-  ssh_key     = var.ssh_key_pair
+  ssh_keys    = [var.ssh_key_pair]
   zone        = var.region
   template_id = var.template_id
   type        = var.instance_type
