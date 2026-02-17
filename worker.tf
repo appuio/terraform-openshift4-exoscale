@@ -93,5 +93,5 @@ module "additional_worker" {
 
   use_instancepool = each.value.use_instancepool != null ? each.value.use_instancepool : var.use_instancepools
 
-  initialize_topolvm_vg = each.value.data_disk_size > 0 && each.value.initialize_topolvm_vg
+  initialize_topolvm_vg = each.value.data_disk_size > 0 && (each.value.initialize_topolvm_vg != null ? each.value.initialize_topolvm_vg : false)
 }
