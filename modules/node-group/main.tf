@@ -223,6 +223,7 @@ resource "exoscale_compute_instance" "nodes" {
       template_id,
       user_data,
       elastic_ip_ids,
+      ssh_keys,
     ]
   }
 }
