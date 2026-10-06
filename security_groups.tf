@@ -13,6 +13,7 @@ resource "exoscale_security_group_rule" "all_machines_tcp" {
     "Cilium Hubble Relay"                                                                                               = "4245,4245",
     "Cilium Operator Prometheus metrics"                                                                                = "6942,6942",
     "Cilium Hubble Enterprise metrics"                                                                                  = "2112,2112",
+    "Cilium CLife Operator Prometheus metrics"                                                                          = "18443,18443",
     "Kubernetes NodePort TCP"                                                                                           = "30000,32767",
   }
 
