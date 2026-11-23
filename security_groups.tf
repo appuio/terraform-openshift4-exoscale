@@ -63,6 +63,7 @@ resource "exoscale_security_group_rule" "all_machines_icmp" {
   type        = "INGRESS"
   protocol    = "ICMP"
   icmp_type   = 8
+  icmp_code   = 0
   cidr        = "0.0.0.0/0"
 }
 
