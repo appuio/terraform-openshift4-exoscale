@@ -44,22 +44,16 @@ locals {
       // top-level keys with the contents of the latest argument which has a
       // top-level key.
       "storage" : {
-        // concatenate the private network config (if requested) with the
-        // `/etc/hostname` override.
-        "files" : var.use_instancepool ? [] : concat(
-          var.use_privnet ? local.privnet_config_files : [],
-          // override /etc/hostname with short hostname, this works around the
-          // fact that we can't set a separate `name` and `display_name` for
-          // compute instances anymore.
-          [{
-            "path" : "/etc/hostname",
-            "mode" : 420,
-            "overwrite" : true,
-            "contents" : {
-              "source" : "data:,${hostname}"
-            }
-          }]
-        ),
+        // configure the `etc/hostname` override if we're not using an
+        // instancepool.
+        "files" : var.use_instancepool ? [] : [{
+          "path" : "/etc/hostname",
+          "mode" : 420,
+          "overwrite" : true,
+          "contents" : {
+            "source" : "data:,${hostname}"
+          }
+        }],
         // We create a custom partition layout if data_disk_size or
         // storage_disk_size are > 0. This is primarily to avoid issues with sector
         // rounding during partitioning if the user didn't request extra disk space.
@@ -78,38 +72,6 @@ locals {
   DNS1=159.100.247.115
   DNS2=159.100.253.158
   EOF
-
-  privnet_iface = "ens4"
-  privnet_config_files = [
-    {
-      "path" : "/etc/sysconfig/network-scripts/ifcfg-ens3",
-      "mode" : 420,
-      "contents" : {
-        "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile("${path.module}/templates/ifcfg.tmpl", { device = "ens3", enabled = "no", custom_dns = "" }))}"
-      }
-    },
-    {
-      "path" : "/etc/sysconfig/network-scripts/ifcfg-${local.privnet_iface}",
-      "mode" : 420,
-      "contents" : {
-        "source" : "data:text/plain;charset=utf-8;base64,${base64encode(templatefile(
-          "${path.module}/templates/ifcfg.tmpl",
-          {
-            device     = local.privnet_iface
-            enabled    = "yes"
-            custom_dns = local.dns_servers
-          }
-        ))}"
-      }
-    },
-    {
-      "path" : "/etc/sysconfig/network-scripts/route-${local.privnet_iface}",
-      "mode" : 420,
-      "contents" : {
-        "source" : "data:text/plain;charset=utf-8;base64,${base64encode("default via ${var.privnet_gw}")}"
-      }
-    }
-  ]
 
   disks_config = [
     {
@@ -167,13 +129,6 @@ locals {
     ]
   }
 
-  privnet_interface = var.use_privnet ? {
-    "clusternet" : {
-      network_id = var.privnet_id
-      ip_address = var.privnet_dhcp_reservation != "" ? var.privnet_dhcp_reservation : null
-    }
-    } : {
-  }
 }
 
 resource "random_id" "node_id" {
@@ -208,15 +163,6 @@ resource "exoscale_compute_instance" "nodes" {
   )
 
   deploy_target_id = var.deploy_target_id
-
-  dynamic "network_interface" {
-    for_each = local.privnet_interface
-
-    content {
-      network_id = network_interface.value["network_id"]
-      ip_address = network_interface.value["ip_address"]
-    }
-  }
 
   lifecycle {
     ignore_changes = [

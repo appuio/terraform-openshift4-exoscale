@@ -1,12 +1,7 @@
 module "lb" {
   source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=v7.1.0"
 
-  exoscale_domain_name = exoscale_domain.cluster.name
-  cluster_network = {
-    enabled           = var.use_privnet
-    name              = local.privnet_id
-    internal_vip_host = "100"
-  }
+  exoscale_domain_name   = exoscale_domain.cluster.name
   cluster_id             = var.cluster_id
   region                 = var.region
   ssh_key_name           = local.ssh_key_name

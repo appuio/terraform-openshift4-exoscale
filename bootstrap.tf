@@ -1,7 +1,3 @@
-locals {
-  bootstrap_ip = cidrhost(var.privnet_cidr, 10)
-}
-
 module "bootstrap" {
   source = "./modules/node-group/"
 
@@ -15,11 +11,6 @@ module "bootstrap" {
   instance_type  = "standard.extra-large"
   node_state     = var.bootstrap_state
   ssh_key_pair   = local.ssh_key_name
-
-  use_privnet              = var.use_privnet
-  privnet_id               = local.privnet_id
-  privnet_gw               = local.privnet_gw
-  privnet_dhcp_reservation = local.bootstrap_ip
 
   api_int     = exoscale_domain_record.api_int.hostname
   ignition_ca = var.ignition_ca

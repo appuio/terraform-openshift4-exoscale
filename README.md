@@ -124,33 +124,3 @@ Since the module manages a VSHN-specific Puppet configuration for the LB VMs, it
 If you're interested in a version of the module which doesn't include VSHN-managed LBs, you can check out the standalone MVP LB configuration in commit [172e2a0](https://github.com/appuio/terraform-openshift4-exoscale/commit/172e2a074b6b23e995ba961da0688397a10474bb).
 
 > :warning: Please note that we're not actively developing the MVP LB configuration at the moment.
-
-## Optional features
-
-### Private network
-
-> :warning: This mode is less polished than the default mode and we're currently not actively working on improving this mode.
-
-Optionally, the OpenShift 4 cluster VMs can be provisioned solely in an Exoscale managed private network.
-To use this variation, set module variable `use_privnet` to `true`.
-If required, you can change the CIDR of the private network by setting variable `privnet_cidr`.
-
-When deploying the RHCOS VMs with a private network only, the VMs **must** first be provisioned in `Stopped` state, and then powered on in a subsequent apply step.
-Otherwise, the initial Ignition config run fails because the Ignition API is not reachable early enough in the boot process, as the network interface is also configured by Ignition in this scenario.
-This can be achieved by running the following sequence of `terraform apply` steps.
-The example assumes that the LBs and bootstrap node have been provisioned correctly already and that we're now provisioning the OCP4 master VMs.
-
-```bash
-for state in "stopped" "running" "running"; do
-  cat >override.tf <<EOF
-  module "cluster" {
-    bootstrap_count = 1
-    infra_count = 0
-    worker_count = 0
-    master_state = "${state}"
-  }
-  terraform apply
-done
-```
-
-Note: the second `terraform apply` with `state = "Running"` may not be required in all cases, but is there as a safeguard if creation of DNS records fails in the first `terraform apply` with `state = "Running".

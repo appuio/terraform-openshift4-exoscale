@@ -15,10 +15,6 @@ module "infra" {
   root_disk_size = var.root_disk_size
   data_disk_size = var.infra_data_disk_size
 
-  use_privnet = var.use_privnet
-  privnet_id  = local.privnet_id
-  privnet_gw  = local.privnet_gw
-
   api_int     = exoscale_domain_record.api_int.hostname
   ignition_ca = var.ignition_ca
 

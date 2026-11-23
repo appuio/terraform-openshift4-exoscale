@@ -31,16 +31,6 @@ variable "existing_keypair" {
   default = ""
 }
 
-variable "privnet_cidr" {
-  type    = string
-  default = "172.18.200.0/24"
-}
-
-variable "use_privnet" {
-  type    = bool
-  default = false
-}
-
 variable "bootstrap_count" {
   type    = number
   default = 0

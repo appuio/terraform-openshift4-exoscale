@@ -61,21 +61,6 @@ variable "base_domain" {
   type = string
 }
 
-variable "use_privnet" {
-  type    = bool
-  default = false
-}
-
-variable "privnet_id" {
-  type    = string
-  default = ""
-}
-
-variable "privnet_gw" {
-  type    = string
-  default = ""
-}
-
 variable "api_int" {
   type = string
 }
@@ -86,11 +71,6 @@ variable "ignition_ca" {
 
 variable "bootstrap_bucket" {
   type = string
-}
-
-variable "privnet_dhcp_reservation" {
-  type    = string
-  default = ""
 }
 
 variable "node_state" {
