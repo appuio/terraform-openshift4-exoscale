@@ -1,5 +1,5 @@
 module "lb" {
-  source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=v7.1.0"
+  source = "git::https://github.com/appuio/terraform-modules.git//modules/vshn-lbaas-exoscale?ref=exoscale/lb-vpc"
 
   exoscale_domain_name   = exoscale_domain.cluster.name
   cluster_id             = var.cluster_id
