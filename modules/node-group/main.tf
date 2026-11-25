@@ -1,3 +1,10 @@
+check "ignition_set_for_bootstrap" {
+  assert {
+    condition     = (var.role == "bootstrap" && var.ignition_bootstrap != "") || true
+    error_message = "variable ignition_bootstrap must be set for the bootstrap node"
+  }
+}
+
 locals {
   disk_size = var.root_disk_size + var.data_disk_size + var.storage_disk_size
 
@@ -5,7 +12,7 @@ locals {
   anti_affinity_group_count    = var.affinity_group_capacity > 0 ? ceil(var.node_count / var.affinity_group_capacity) : 1
 
   ignition_source = {
-    "bootstrap" = "${trimsuffix(var.bootstrap_bucket, "/")}/bootstrap.ign"
+    "bootstrap" = var.ignition_bootstrap
     "master"    = "https://${var.api_int}:22623/config/master"
     "worker"    = "https://${var.api_int}:22623/config/worker"
   }

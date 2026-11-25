@@ -20,5 +20,5 @@ module "bootstrap" {
     exoscale_security_group.control_plane.id,
   ]
 
-  bootstrap_bucket = var.bootstrap_bucket
+  ignition_bootstrap = var.ignition_bootstrap
 }

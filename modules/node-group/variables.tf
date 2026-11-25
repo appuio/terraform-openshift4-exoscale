@@ -69,8 +69,9 @@ variable "ignition_ca" {
   type = string
 }
 
-variable "bootstrap_bucket" {
-  type = string
+variable "ignition_bootstrap" {
+  type    = string
+  default = ""
 }
 
 variable "node_state" {
