@@ -19,10 +19,6 @@ module "storage" {
   // dedicated storage cluster nodes for now.
   storage_disk_size = var.storage_cluster_disk_size
 
-  use_privnet = var.use_privnet
-  privnet_id  = local.privnet_id
-  privnet_gw  = local.privnet_gw
-
   api_int     = exoscale_domain_record.api_int.hostname
   ignition_ca = var.ignition_ca
 

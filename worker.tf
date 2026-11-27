@@ -17,10 +17,6 @@ module "worker" {
   root_disk_size = var.root_disk_size
   data_disk_size = var.worker_data_disk_size
 
-  use_privnet = var.use_privnet
-  privnet_id  = local.privnet_id
-  privnet_gw  = local.privnet_gw
-
   api_int     = exoscale_domain_record.api_int.hostname
   ignition_ca = var.ignition_ca
 
@@ -67,10 +63,6 @@ module "additional_worker" {
   template_id  = data.exoscale_template.rhcos.id
   base_domain  = var.base_domain
   ssh_key_pair = local.ssh_key_name
-
-  use_privnet = var.use_privnet
-  privnet_id  = local.privnet_id
-  privnet_gw  = local.privnet_gw
 
   api_int     = exoscale_domain_record.api_int.hostname
   ignition_ca = var.ignition_ca
