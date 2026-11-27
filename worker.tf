@@ -32,8 +32,6 @@ module "worker" {
 
   deploy_target_id = var.deploy_target_id
 
-  bootstrap_bucket = var.bootstrap_bucket
-
   use_instancepool = var.use_instancepools
 
   initialize_topolvm_vg = var.worker_data_disk_size > 0 && var.worker_initialize_topolvm_vg
@@ -80,8 +78,6 @@ module "additional_worker" {
   )
 
   deploy_target_id = var.deploy_target_id
-
-  bootstrap_bucket = var.bootstrap_bucket
 
   use_instancepool = each.value.use_instancepool != null ? each.value.use_instancepool : var.use_instancepools
 

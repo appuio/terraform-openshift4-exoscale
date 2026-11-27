@@ -199,7 +199,7 @@ variable "ignition_ca" {
   type = string
 }
 
-variable "bootstrap_bucket" {
+variable "ignition_bootstrap" {
   type = string
 }
 
